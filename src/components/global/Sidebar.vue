@@ -25,6 +25,7 @@
                 :key="item.title"
                 link
                 class="hovering ma-1 pl-3 menus bg-menus"
+                :to="item.route"
             >
                 <v-list-item-icon>
                     <v-icon left size="24px" class="white--text text-center">{{
@@ -65,12 +66,32 @@ export default {
         return {
             drawer: true,
             items: [
-                { title: "Dashboard", icon: "mdi-view-dashboard" },
-                { title: "Receitas", icon: "mdi-currency-usd" },
-                { title: "Despesas", icon: "mdi-briefcase" },
-                { title: "Planejamento", icon: "mdi-lightbulb-outline" },
-                { title: "Administrador", icon: "mdi-domain" },
-                { title: "Relatórios", icon: "mdi-chart-timeline-variant" }
+                {
+                    route: "Dashboard",
+                    title: "Dashboard",
+                    icon: "mdi-view-dashboard"
+                },
+                {
+                    route: "Receita",
+                    title: "Receitas",
+                    icon: "mdi-currency-usd"
+                },
+                { route: "Despesa", title: "Despesas", icon: "mdi-briefcase" },
+                {
+                    route: "Planejamento",
+                    title: "Planejamento",
+                    icon: "mdi-lightbulb-outline"
+                },
+                {
+                    route: "Administrador",
+                    title: "Administrador",
+                    icon: "mdi-domain"
+                },
+                {
+                    route: "Relatorio",
+                    title: "Relatórios",
+                    icon: "mdi-chart-timeline-variant"
+                }
             ],
             mini: true
         };

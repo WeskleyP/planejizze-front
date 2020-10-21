@@ -2,9 +2,9 @@
     <v-app>
         <Header />
         <Sidebar />
-        <v-main>
+        <v-main class="main">
             <v-container>
-                <h1>Iniciando...</h1>
+                <router-view></router-view>
             </v-container>
         </v-main>
     </v-app>
@@ -18,3 +18,10 @@ export default {
     components: { Header, Sidebar }
 };
 </script>
+<style scoped>
+.main {
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+</style>
