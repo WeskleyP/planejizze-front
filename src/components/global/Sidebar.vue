@@ -1,16 +1,12 @@
 <template>
     <v-navigation-drawer
-        v-model="drawer"
+        :permanent="drawer"
         app
-        :mini-variant.sync="mini"
-        permanent
         color="menuBg"
+        :mini-variant.sync="drawer"
     >
-        <v-list class="pa-0" min-height="56">
-            <v-list-item
-                @click.stop="mini = !mini"
-                class="bg-menus principalTitle lh"
-            >
+        <v-list class="pa-0" min-height="64">
+            <v-list-item class="bg-menus principalTitle lh">
                 <v-list-item-icon>
                     <v-icon class="white--text">mdi-alpha-p </v-icon>
                 </v-list-item-icon>
@@ -64,7 +60,6 @@
 export default {
     data() {
         return {
-            drawer: true,
             items: [
                 {
                     route: "Dashboard",
@@ -92,9 +87,18 @@ export default {
                     title: "Relatórios",
                     icon: "mdi-chart-timeline-variant"
                 }
-            ],
-            mini: true
+            ]
         };
+    },
+    computed: {
+        drawer: {
+            get() {
+                return this.$store.state.drawer;
+            },
+            set(val) {
+                this.$store.commit("SET_DRAWER", val);
+            }
+        }
     }
 };
 </script>
@@ -115,6 +119,6 @@ export default {
     background: rgba(255, 255, 255, 0.05);
 }
 .lh {
-    height: 56px;
+    height: 64px;
 }
 </style>

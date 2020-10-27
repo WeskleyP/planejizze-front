@@ -1,5 +1,5 @@
 <template>
-    <v-container class="dashboard">
+    <v-container fluid class="fill-height">
         <h1>DashBoard</h1>
     </v-container>
 </template>
@@ -8,11 +8,4 @@
 export default {};
 </script>
 
-<style>
-.dashboard {
-    background-color: red;
-    height: 100%;
-    width: 100%;
-    margin: 0;
-}
-</style>
+<style></style>

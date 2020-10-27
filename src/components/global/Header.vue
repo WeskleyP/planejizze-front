@@ -1,17 +1,9 @@
 <template>
     <v-app-bar app color="primary" absolute>
-        <v-btn icon @click="drawer = !drawer">
+        <v-btn icon @click="setDrawer(!drawer)">
             <v-icon color="white">mdi-menu</v-icon>
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn icon>
-            <v-icon>mdi-heart</v-icon>
-        </v-btn>
-
-        <v-btn icon>
-            <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-
         <v-menu left bottom>
             <template v-slot:activator="{ on, attrs }">
                 <v-btn icon v-bind="attrs" v-on="on">
@@ -29,11 +21,16 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
+
 export default {
-    data() {
-        return {
-            drawer: true
-        };
+    computed: {
+        ...mapState(["drawer"])
+    },
+    methods: {
+        ...mapMutations({
+            setDrawer: "SET_DRAWER"
+        })
     }
 };
 </script>
