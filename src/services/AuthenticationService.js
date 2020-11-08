@@ -10,9 +10,9 @@ class AuthenticationService {
         });
     }
     refreshToken() {
-        const refresh = "";
+        const refreshToken = localStorage.getItem("refreshToken");
         return new Promise((resolve, reject) => {
-            backendUrl.post("/auth/refreshToken", refresh).then(
+            backendUrl.post("/auth/refreshToken", { refreshToken }).then(
                 response => resolve(response.data),
                 err => reject(err.response)
             );
@@ -21,6 +21,14 @@ class AuthenticationService {
     clarifyToken(token) {
         return new Promise((resolve, reject) => {
             backendUrl.post("/auth/readToken", { token }).then(
+                response => resolve(response.data),
+                err => reject(err.response)
+            );
+        });
+    }
+    register(registerData) {
+        return new Promise((resolve, reject) => {
+            backendUrl.post("/auth/register", registerData).then(
                 response => resolve(response.data),
                 err => reject(err.response)
             );

@@ -14,8 +14,8 @@ export default new Vuetify({
                 hoverColor: "#700049",
                 premium: "#C39300",
                 bgIndex: "#F2F2F2",
-                dolarBg: "#5D069A4D",
-                graphColorBg: "#41062dA6",
+                dolarBg: "#5D069A", //0.3
+                graphColorBg: "#41062d", //0.65
                 principalTitle: "#4E107B"
             }
         }
