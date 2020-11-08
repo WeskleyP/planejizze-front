@@ -5,11 +5,26 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        drawer: true
+        drawer: true,
+        token: localStorage.getItem("token")
     },
     mutations: {
         SET_DRAWER(state, payload) {
             state.drawer = payload;
+        },
+        LOGIN(state, data) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("refreshToken", data.refreshToken);
+            state.token = data.token;
+        },
+        PERMS(_state, data) {
+            localStorage.setItem("expire", data.expire);
+            localStorage.setItem("permissions", data.permissions);
+        },
+        LOGOUT(state) {
+            sessionStorage.clear();
+            localStorage.clear();
+            state.token = "";
         }
     },
     actions: {}

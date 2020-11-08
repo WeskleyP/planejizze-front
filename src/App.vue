@@ -1,11 +1,9 @@
 <template>
     <v-app>
-        <Header />
-        <Sidebar />
+        <Header v-if="tokenExists" />
+        <Sidebar v-if="tokenExists" />
         <v-main class="main">
-            <v-container>
-                <router-view></router-view>
-            </v-container>
+            <router-view></router-view>
         </v-main>
     </v-app>
 </template>
@@ -15,7 +13,12 @@ import Header from "./components/global/Header";
 import Sidebar from "./components/global/Sidebar";
 
 export default {
-    components: { Header, Sidebar }
+    components: { Header, Sidebar },
+    computed: {
+        tokenExists() {
+            return this.$store.state.token ? true : false;
+        }
+    }
 };
 </script>
 <style scoped>

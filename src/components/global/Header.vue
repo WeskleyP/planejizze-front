@@ -4,16 +4,35 @@
             <v-icon color="white">mdi-menu</v-icon>
         </v-btn>
         <v-spacer></v-spacer>
-        <v-menu left bottom>
+        <v-menu left bottom offset-y>
             <template v-slot:activator="{ on, attrs }">
                 <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon>mdi-dots-vertical</v-icon>
+                    <v-icon class="white--text">mdi-account-multiple</v-icon>
                 </v-btn>
             </template>
 
-            <v-list>
-                <v-list-item v-for="n in 5" :key="n" @click="() => {}">
-                    <v-list-item-title>Option {{ n }}</v-list-item-title>
+            <v-list nav>
+                <v-list-item class="text-right">
+                    <v-list-item-content>
+                        <v-list-item-title>Preferências</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item class="text-right">
+                    <v-list-item-content>
+                        <v-list-item-title>Perfil</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item class="text-right">
+                    <v-list-item-content>
+                        <v-list-item-title>Alterar a senha</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item class="text-right">
+                    <v-list-item-content>
+                        <v-list-item-title @click="logout"
+                            >Sair</v-list-item-title
+                        >
+                    </v-list-item-content>
                 </v-list-item>
             </v-list>
         </v-menu>
@@ -30,7 +49,12 @@ export default {
     methods: {
         ...mapMutations({
             setDrawer: "SET_DRAWER"
-        })
+        }),
+        logout() {
+            this.$router.push({
+                name: "Login"
+            });
+        }
     }
 };
 </script>
