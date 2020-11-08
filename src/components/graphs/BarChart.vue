@@ -1,3 +1,4 @@
+<script>
 import { Bar, mixins } from "vue-chartjs";
 const { reactiveProp } = mixins;
 
@@ -9,3 +10,4 @@ export default {
         this.renderChart(this.chartData, this.options);
     }
 };
+</script>

@@ -1,8 +1,9 @@
-import { HorizontalBar, mixins } from "vue-chartjs";
+<script>
+import { Scatter, mixins } from "vue-chartjs";
 const { reactiveProp } = mixins;
 
 export default {
-    extends: HorizontalBar,
+    extends: Scatter,
     mixins: [reactiveProp],
     props: ["options", "chartData"],
     mounted() {
@@ -11,3 +12,4 @@ export default {
         this.renderChart(this.chartData, this.options);
     }
 };
+</script>
