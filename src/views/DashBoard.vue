@@ -1,24 +1,24 @@
 <template>
-    <v-container fluid class="fill-height">
+    <v-container fluid class="fill-height max-width">
         <v-row>
-            <v-col cols="6">
+            <v-col cols="6" lg="6" sm="12">
                 <v-card elevation="4">
                     <pie-chart :chart-data="pieData" />
                 </v-card>
             </v-col>
-            <v-col cols="6">
+            <v-col cols="6" lg="6" sm="12">
                 <v-card elevation="4">
                     <horizontal-bar-chart :chart-data="horizontalBarData" />
                 </v-card>
             </v-col>
         </v-row>
         <v-row>
-            <v-col cols="6">
+            <v-col cols="6" lg="6" sm="12">
                 <v-card elevation="4">
                     <bar-chart :chart-data="barData" />
                 </v-card>
             </v-col>
-            <v-col cols="6">
+            <v-col cols="6" lg="6" sm="12">
                 <v-card elevation="4">
                     <scatter-chart :chart-data="scatterData" />
                 </v-card>
@@ -141,4 +141,8 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.max-width {
+    max-width: 1500px;
+}
+</style>
