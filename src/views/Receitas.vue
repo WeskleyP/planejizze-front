@@ -1,51 +1,64 @@
 <template>
-    <v-container fluid>
+    <v-container fluid class="fill-height">
         <v-row>
-            <v-col cols="8" class="bgColor align">
-                <v-item-group class="bgColor align">
-                    <v-card
-                        elevation="2"
-                        color="rgba(95, 68, 115, 0.5)"
-                        class="wid pa-5"
-                        >Você recebeu R$ 5000,00 nos últimos 30 dias</v-card
-                    >
-                    <v-card
-                        elevation="2"
-                        color="rgba(132, 74, 112, 0.5)"
-                        class="wid pa-5"
-                        >Você irá receber R$ 3500,00 nos próximos 30
-                        dias</v-card
-                    >
-                    <v-card
-                        elevation="2"
-                        color="rgba(81, 73, 118, 0.5)"
-                        class="wid pa-5"
-                        >Sua próxima receita será no valor de R$ 500,00</v-card
-                    >
-                </v-item-group>
+            <v-col cols="8" sm="12" md="6" lg="8" class="ma-5">
+                <v-row class="py-4">
+                    <v-item-group class="bgColor align">
+                        <v-card
+                            elevation="2"
+                            color="rgba(95, 68, 115, 0.5)"
+                            class="wid ma-5"
+                            >Você recebeu R$ 5000,00 nos últimos 30 dias</v-card
+                        >
+                        <v-card
+                            elevation="2"
+                            color="rgba(132, 74, 112, 0.5)"
+                            class="wid ma-5"
+                            >Você irá receber R$ 3500,00 nos próximos 30
+                            dias</v-card
+                        >
+                        <v-card
+                            elevation="2"
+                            color="rgba(81, 73, 118, 0.5)"
+                            class="wid ma-5"
+                            >Sua próxima receita será no valor de R$
+                            500,00</v-card
+                        >
+                    </v-item-group>
+                </v-row>
+                <v-row class="my-4">
+                    <v-data-table
+                        :headers="headers"
+                        :items="desserts"
+                        :items-per-page="5"
+                        class="elevation-1 fw"
+                    ></v-data-table>
+                </v-row>
             </v-col>
-            <v-col cols="4" align-self="center">
-                <v-card elevation="4">
-                    <pie-chart :chart-data="pieData" :options="pieOptions" />
-                </v-card>
-            </v-col>
-            <v-col cols="8">
-                <v-data-table
-                    height="40vh"
-                    style="top: 0;"
-                    :headers="headers"
-                    :items="desserts"
-                    :items-per-page="5"
-                    class="elevation-1"
-                ></v-data-table>
-            </v-col>
-            <v-col cols="4" align-self="center">
-                <v-card elevation="4">
-                    <horizontal-bar-chart
-                        :chart-data="pieData"
-                        :options="pieOptions"
-                    />
-                </v-card>
+            <v-col
+                cols="3"
+                sm="12"
+                md="5"
+                lg="3"
+                class="ml-5 jc"
+                align-self="center"
+            >
+                <v-row justify="center">
+                    <v-card elevation="4">
+                        <pie-chart
+                            :chart-data="pieData"
+                            :options="pieOptions"
+                        />
+                    </v-card>
+                </v-row>
+                <v-row justify="center">
+                    <v-card elevation="4">
+                        <horizontal-bar-chart
+                            :chart-data="pieData"
+                            :options="pieOptions"
+                        />
+                    </v-card>
+                </v-row>
             </v-col>
         </v-row>
     </v-container>
@@ -61,7 +74,9 @@ export default {
     data() {
         return {
             pieData: null,
-            pieOptions: {},
+            pieOptions: {
+                responsive: true
+            },
             headers: [
                 {
                     text: "Dessert (100g serving)",
@@ -196,7 +211,6 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    height: 100%;
 }
 .wid {
     width: 32%;
@@ -206,5 +220,16 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.fw {
+    width: 100%;
+}
+.jc {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    min-width: 350px;
 }
 </style>
