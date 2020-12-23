@@ -8,13 +8,14 @@
                             elevation="2"
                             color="rgba(95, 68, 115, 0.5)"
                             class="wid ma-5"
-                            >Você recebeu R$ 5000,00 nos últimos 30 dias</v-card
+                            >Você recebeu R$ {{ cards.v1 }} nos últimos 30
+                            dias</v-card
                         >
                         <v-card
                             elevation="2"
                             color="rgba(132, 74, 112, 0.5)"
                             class="wid ma-5"
-                            >Você irá receber R$ 3500,00 nos próximos 30
+                            >Você irá receber R$ {{ cards.v2 }} nos próximos 30
                             dias</v-card
                         >
                         <v-card
@@ -22,7 +23,7 @@
                             color="rgba(81, 73, 118, 0.5)"
                             class="wid ma-5"
                             >Sua próxima receita será no valor de R$
-                            500,00</v-card
+                            {{ cards.v3 }}</v-card
                         >
                     </v-item-group>
                 </v-row>
@@ -50,7 +51,11 @@
                                     single-line
                                     hide-details
                                 ></v-text-field>
-                                <v-btn color="primary" class="mb-2 ml-2">
+                                <v-btn
+                                    color="primary"
+                                    class="mb-2 ml-2"
+                                    @click="addNewItem()"
+                                >
                                     Adicionar nova receita
                                 </v-btn>
                             </v-toolbar>
@@ -81,8 +86,9 @@
                         <apexchart
                             width="100%"
                             type="bar"
-                            :options="optionsBar"
-                            :series="lineSeries"
+                            ref="fChart"
+                            :options="barChart.chartOptions"
+                            :series="barChart.series"
                         ></apexchart>
                     </v-card>
                 </v-row>
@@ -100,45 +106,62 @@
                             width="100%"
                             type="pie"
                             height="600"
-                            :options="options"
-                            :series="series"
+                            :options="pieChart.chartOptions"
+                            :series="pieChart.series"
                         ></apexchart>
                     </v-card>
                 </v-row>
             </v-col>
         </v-row>
+        <router-view />
     </v-container>
 </template>
 <script>
+import ReceitaService from "../services/ReceitaService";
+import { getMonth } from "date-fns";
 export default {
     data() {
         return {
             search: "",
-            options: {},
-            optionsBar: {
-                chart: {
-                    toolbar: {
-                        show: false
+            month: getMonth(new Date()) + 1,
+            cards: {
+                v1: 0,
+                v2: 0,
+                v3: 0
+            },
+            dataTable: [],
+            barChart: {
+                series: [
+                    {
+                        data: []
                     }
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: true
-                    }
-                },
-                dataLabels: {
-                    enabled: false
+                ],
+                chartOptions: {
+                    xaxis: {
+                        categories: []
+                    },
+                    chart: {
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    colors: []
                 }
             },
-            series: [44, 55, 41, 17, 15],
-            lineSeries: [
-                {
-                    data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]
+            pieChart: {
+                series: [],
+                chartOptions: {
+                    labels: [],
+                    colors: []
                 }
-            ],
-            pieData: null,
-            pieOptions: {
-                responsive: true
             },
             headers: [
                 {
@@ -147,48 +170,86 @@ export default {
                     sortable: false,
                     value: "descricao"
                 },
-                { text: "Categoria", value: "categoria" },
+                { text: "Categoria", value: "categoriaReceita.nome" },
                 { text: "Valor", value: "valor" },
-                { text: "Recebimento", value: "dataRecebimento" },
+                {
+                    text: "Recebimento",
+                    value: "tipoRecebimento.tipoRecebimentoBancoLogs.id"
+                },
                 { text: "Status", value: "status" },
                 { text: "Repete-se?", value: "repetir" },
                 { text: "Opções", value: "actions" }
             ],
-            receitas: [
-                {
-                    descricao: "TEste desc",
-                    categoria: "Teste",
-                    valor: "5000",
-                    dataRecebimento: "20/12/2020",
-                    status: "A PAGAR",
-                    repetir: "Não"
-                },
-                {
-                    descricao: "TEste desc",
-                    categoria: "Teste",
-                    valor: "5000",
-                    dataRecebimento: "20/12/2020",
-                    status: "A PAGAR",
-                    repetir: "Não"
-                },
-                {
-                    descricao: "TEste desc",
-                    categoria: "Teste",
-                    valor: "5000",
-                    dataRecebimento: "20/12/2020",
-                    status: "A PAGAR",
-                    repetir: "Não"
-                }
-            ]
+            receitas: []
         };
     },
-    mounted() {
-        this.fillPieData();
+    created() {
+        this.fillCardData();
+        this.filTable();
+        this.fillBarChart();
+        this.fillPieChart(this.month);
     },
     methods: {
-        fillPieData() {},
-        getRandomInt() {
-            return Math.floor(Math.random() * (50 - 5 + 1)) + 5;
+        addNewItem() {
+            this.$router.push({ name: "NewReceita" });
+        },
+        fillCardData() {
+            ReceitaService.findReceitasLast30Days()
+                .then(res => {
+                    this.cards.v1 = res.count;
+                })
+                .catch(e => console.error(e.message));
+            ReceitaService.findReceitasNext30Days()
+                .then(res => {
+                    this.cards.v2 = res.count;
+                })
+                .catch(e => console.error(e.message));
+            ReceitaService.findNextReceita()
+                .then(res => {
+                    this.cards.v3 = res.count;
+                })
+                .catch(e => console.error(e.message));
+        },
+        filTable() {
+            ReceitaService.findAllPaginated(0, 5).then(res => {
+                this.receitas = res.content;
+                console.log("table", this.receitas);
+            });
+        },
+        fillBarChart() {
+            ReceitaService.findReceitasLast6Months()
+                .then(res => {
+                    res.map(r => {
+                        let data = {
+                            name: r.categoriaNome,
+                            data: [
+                                {
+                                    x: r.categoriaNome,
+                                    y: r.valor
+                                }
+                            ]
+                        };
+                        this.barChart.series.push(data);
+                        this.barChart.chartOptions.xaxis.categories.push(
+                            r.categoriaNome
+                        );
+                        this.barChart.chartOptions.colors.push(r.categoriaCor);
+                    });
+                    this.barChart.chartOptions.colors.splice(0, 1);
+                    this.barChart.series.splice(0, 1);
+                })
+                .catch(e => console.error(e));
+        },
+        fillPieChart(mes) {
+            ReceitaService.porCategoriaEMês(mes)
+                .then(res => {
+                    res.map(r => {
+                        this.pieChart.series.push(r.valor);
+                        this.pieChart.chartOptions.labels.push(r.categoriaNome);
+                        this.pieChart.chartOptions.colors.push(r.categoriaCor);
+                    });
+                })
+                .catch(e => console.error(e));
         }
     }
 };

@@ -16,7 +16,20 @@ const routes = [
         beforeEnter(_to, _from, next) {
             store.commit("LOGOUT");
             next();
-        }
+        },
+        children: [
+            {
+                path: "forget-password",
+                name: "ForgetPassword",
+                meta: {
+                    public: true
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/global/ForgetPassword.vue"
+                    )
+            }
+        ]
     },
     {
         path: "/dashboard",
@@ -36,7 +49,26 @@ const routes = [
             permission: {
                 read: true
             }
-        }
+        },
+        children: [
+            {
+                path: "new-receita",
+                name: "NewReceita",
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                beforeEnter(_to, _from, next) {
+                    console.log("Testando antes de entrar");
+                    next();
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/receita/ReceitaForm.vue"
+                    )
+            }
+        ]
     },
     {
         path: "/planejamento",

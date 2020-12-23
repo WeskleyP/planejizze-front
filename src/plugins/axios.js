@@ -13,7 +13,10 @@ const backendUrl = axios.create({
 
 function interceptorsResponseError(error) {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (
+        (error.response.status === 401 || error.response.status === 403) &&
+        !originalRequest._retry
+    ) {
         if (
             originalRequest.url ===
             `${process.env.VUE_APP_PLANEJIZZE_API}/auth/login`
@@ -43,7 +46,7 @@ function interceptorsResponseError(error) {
 backendUrl.interceptors.request.use(
     config => {
         const token = localStorage.token;
-        if (token) config.headers.Authorization = token;
+        if (token) config.headers.Authorization = "Bearer " + token;
         return config;
     },
     error => {

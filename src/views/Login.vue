@@ -3,53 +3,84 @@
         <v-main>
             <v-container class="fill-height bg-login" fluid>
                 <v-row align="center" justify="center">
-                    <v-col cols="12" sm="8" md="4" lg="3">
-                        <v-card class="elevation-0">
-                            <v-card-text class="pb-0 px-6">
-                                <v-form>
-                                    <v-text-field
-                                        id="email"
-                                        name="email"
-                                        outlined
+                    <v-card color="rgba(49, 0, 85, 0.75)" class="pa-10">
+                        <v-card-title
+                            class="flex-row justify-center py-10 my-10"
+                        >
+                            <span
+                                class="headline white--text text-h2"
+                                style="font-family: Oswald; sans-serif; font-weight: 400;font-size: 48px;"
+                                >Planejizze</span
+                            >
+                        </v-card-title>
+                        <v-col cols="12">
+                            <v-card class="elevation-0 menuBg">
+                                <v-card-text class="pb-0 px-6 pt-5">
+                                    <v-form>
+                                        <v-text-field
+                                            id="email"
+                                            name="email"
+                                            outlined
+                                            height="50"
+                                            dense
+                                            color="#A45800"
+                                            background-color="white"
+                                            v-model="credenciais.email"
+                                            placeholder="Digite o seu email"
+                                            type="text"
+                                        ></v-text-field>
+                                        <v-text-field
+                                            id="password"
+                                            name="password"
+                                            v-model="credenciais.senha"
+                                            outlined
+                                            color="#A45800"
+                                            background-color="white"
+                                            height="50"
+                                            dense
+                                            placeholder="Digite a sua senha"
+                                            type="password"
+                                        ></v-text-field>
+                                    </v-form>
+                                </v-card-text>
+                                <v-card-actions class="px-6">
+                                    <v-btn
+                                        class="white--text"
+                                        color="hoverColor"
+                                        block
                                         height="50"
-                                        dense
-                                        v-model="credenciais.email"
-                                        placeholder="Digite o seu email"
-                                        type="text"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        id="password"
-                                        name="password"
-                                        v-model="credenciais.senha"
+                                        @click="login"
+                                        >Entrar</v-btn
+                                    >
+                                </v-card-actions>
+                                <v-card-actions class="px-6 overflow-auto">
+                                    <v-btn
+                                        class="menuBg"
+                                        height="20"
                                         outlined
-                                        height="50"
-                                        dense
-                                        placeholder="Digite a sua senha"
-                                        type="password"
-                                    ></v-text-field>
-                                </v-form>
-                            </v-card-text>
-                            <v-card-actions class="pa-6">
-                                <v-btn
-                                    class="white--text"
-                                    color="hoverColor"
-                                    block
-                                    height="50"
-                                    @click="login"
-                                    >Entrar</v-btn
-                                >
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-row justify="center">
-                            <v-col cols="auto">
-                                <span>Esqueci minha senha</span>
-                            </v-col>
-                        </v-row>
-                    </v-col>
+                                        @click="login"
+                                    >
+                                        <span class="bt-text">
+                                            Não tem conta? Crie a sua agora
+                                        </span></v-btn
+                                    >
+                                    <v-spacer />
+                                    <v-btn
+                                        class="menuBg"
+                                        height="20"
+                                        outlined
+                                        @click="forgetPassword"
+                                        ><span class="bt-text">
+                                            Esqueci minha senha
+                                        </span></v-btn
+                                    >
+                                </v-card-actions>
+                            </v-card>
+                        </v-col>
+                    </v-card>
                 </v-row>
             </v-container>
+            <router-view />
         </v-main>
     </v-app>
 </template>
@@ -69,11 +100,9 @@ export default {
         login() {
             AuthenticationService.login(this.credenciais)
                 .then(response => {
-                    console.log(response);
                     this.$store.commit("LOGIN", response);
                     AuthenticationService.clarifyToken(response.token).then(
                         response => {
-                            console.log(response);
                             this.$store.commit("PERMS", response.body);
                             this.$router.push({ name: "DashBoard" });
                         }
@@ -82,6 +111,9 @@ export default {
                 .catch(error => {
                     console.log(error);
                 });
+        },
+        forgetPassword() {
+            this.$router.push({ name: "ForgetPassword" });
         }
     }
 };
@@ -96,5 +128,9 @@ export default {
         ),
         linear-gradient(180deg, #4a0e75 49.48%, rgba(255, 255, 255, 0) 100%),
         linear-gradient(0deg, #700049, #700049);
+}
+.bt-text {
+    font-size: 11px;
+    color: #c3b4ff;
 }
 </style>

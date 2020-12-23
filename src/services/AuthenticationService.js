@@ -34,6 +34,14 @@ class AuthenticationService {
             );
         });
     }
+    forgetPassword(email) {
+        return new Promise((resolve, reject) => {
+            backendUrl.post("/auth/forgetPassword", email).then(
+                response => resolve(response.data),
+                err => reject(err.response)
+            );
+        });
+    }
 }
 
 export default new AuthenticationService();
