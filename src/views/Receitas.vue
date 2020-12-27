@@ -41,6 +41,7 @@
                         :items-per-page="5"
                         class="elevation-1 fw"
                         no-data-text="Não foi encontrado nenhum dado!"
+                        no-results-text="Não foi encontrado nenhum dado!"
                     >
                         <template v-slot:top>
                             <v-toolbar flat>
@@ -59,6 +60,61 @@
                                     Adicionar nova receita
                                 </v-btn>
                             </v-toolbar>
+                        </template>
+                        <!-- TODO mudar isso aqui-->
+                        <template
+                            v-slot:item.tipoRecebimento="{
+                                item
+                            }"
+                            @click="openOrCloseRecebimentoModal"
+                        >
+                            <v-btn
+                                class="primary"
+                                @click="openOrCloseRecebimentoModal"
+                            >
+                                Status Receita
+                            </v-btn>
+                            <v-dialog
+                                v-if="recebimentoModal"
+                                v-model="item.tipoRecebimento"
+                                max-width="500"
+                                style="height: 100%"
+                                @click:outside="openOrCloseRecebimentoModal"
+                            >
+                                <v-data-table
+                                    :headers="headersOtherTable"
+                                    :items="
+                                        item.tipoRecebimento.type ==
+                                        'recebimentoComBanco'
+                                            ? item.tipoRecebimento
+                                                  .tipoRecebimentoBancoLogs
+                                            : item.tipoRecebimento
+                                                  .tipoRecebimentoMoedaLogs
+                                    "
+                                    :items-per-page="999"
+                                    :item-key="
+                                        item.tipoRecebimento.type ==
+                                        'recebimentoComBanco'
+                                            ? item.tipoRecebimento
+                                                  .tipoRecebimentoBancoLogs.id
+                                            : item.tipoRecebimento
+                                                  .tipoRecebimentoMoedaLogs.id
+                                    "
+                                    class="elevation-1 fw"
+                                    no-data-text="Não foi encontrado nenhum dado!"
+                                    no-results-text="Não foi encontrado nenhum dado!"
+                                >
+                                </v-data-table>
+                            </v-dialog>
+                        </template>
+                        <template v-slot:item.repetir="{ item }">
+                            <div
+                                :class="
+                                    item.repetir ? 'purple--text' : 'red--text'
+                                "
+                            >
+                                {{ item.repetir ? "Sim" : "Não" }}
+                            </div>
                         </template>
                         <template v-slot:item.actions="{ item }">
                             <v-icon small class="mr-2" @click="editItem(item)">
@@ -123,6 +179,7 @@ export default {
     data() {
         return {
             search: "",
+            recebimentoModal: false,
             month: getMonth(new Date()) + 1,
             cards: {
                 v1: 0,
@@ -163,6 +220,15 @@ export default {
                     colors: []
                 }
             },
+            headersOtherTable: [
+                {
+                    text: "Data Recebimento Experada",
+                    value: "dataRecebimentoExperada"
+                },
+                { text: "Data Recebimento Real", value: "dataRecebimentoReal" },
+                { text: "Status", value: "statusReceita" },
+                { text: "Valor Recebido", value: "valorRecebido" }
+            ],
             headers: [
                 {
                     text: "Descrição",
@@ -174,7 +240,7 @@ export default {
                 { text: "Valor", value: "valor" },
                 {
                     text: "Recebimento",
-                    value: "tipoRecebimento.tipoRecebimentoBancoLogs.id"
+                    value: "tipoRecebimento"
                 },
                 { text: "Status", value: "status" },
                 { text: "Repete-se?", value: "repetir" },
@@ -190,6 +256,9 @@ export default {
         this.fillPieChart(this.month);
     },
     methods: {
+        openOrCloseRecebimentoModal() {
+            this.recebimentoModal = !this.recebimentoModal;
+        },
         addNewItem() {
             this.$router.push({ name: "NewReceita" });
         },
@@ -213,7 +282,25 @@ export default {
         filTable() {
             ReceitaService.findAllPaginated(0, 5).then(res => {
                 this.receitas = res.content;
-                console.log("table", this.receitas);
+                /*this.receitas = [
+                    {
+                        id: res.content.id,
+                        descricao: res.content.descricao,
+                        categoriaReceita: res.content.categoriaReceita,
+                        valor: res.content.valor,
+                        tipoRecebimento: res.content.tipoRecebimento,
+                        status:
+                            res.content.tipoRecebimento.type ==
+                            "recebimentoComBanco"
+                                ? res.content.tipoRecebimento.tipoRecebimentoBancoLogs.filter(e => {
+                                    e.
+                                })
+                                : res.content.tipoRecebimento.tipoRecebimentoMoedaLogs.forEach(e => {
+                                    e.
+                                }),
+                        repetir: res.content.repetir
+                    }
+                ];*/
             });
         },
         fillBarChart() {
@@ -256,9 +343,6 @@ export default {
 </script>
 
 <style scoped>
-.teste {
-    background-color: red;
-}
 .align {
     display: flex;
     flex-direction: row;
