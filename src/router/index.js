@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import Vue from "vue";
 import VueRouter from "vue-router";
 import store from "../store/index";
@@ -5,6 +6,19 @@ import store from "../store/index";
 Vue.use(VueRouter);
 
 const routes = [
+    {
+        path: "/home",
+        name: "Initial",
+        component: () =>
+            import(/* webpackChunkName: "internal" */ "../views/Initial.vue"),
+        meta: {
+            public: true
+        },
+        beforeEnter(_to, _from, next) {
+            store.commit("LOGOUT");
+            next();
+        }
+    },
     {
         path: "/login",
         name: "Login",
@@ -81,7 +95,23 @@ const routes = [
             permission: {
                 read: true
             }
-        }
+        },
+        children: [
+            {
+                path: "categorias-planejamento",
+                name: "PlanejamentosCategorias",
+                props: true,
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/planejamento/CategoriaPlanejamento.vue"
+                    )
+            }
+        ]
     },
     {
         path: "/administrador",

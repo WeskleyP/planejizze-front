@@ -62,52 +62,7 @@
                             </v-toolbar>
                         </template>
                         <!-- TODO mudar isso aqui-->
-                        <template
-                            v-slot:item.tipoRecebimento="{
-                                item
-                            }"
-                            @click="openOrCloseRecebimentoModal"
-                        >
-                            <v-btn
-                                class="primary"
-                                @click="openOrCloseRecebimentoModal"
-                            >
-                                Status Receita
-                            </v-btn>
-                            <v-dialog
-                                v-if="recebimentoModal"
-                                v-model="item.tipoRecebimento"
-                                max-width="500"
-                                style="height: 100%"
-                                @click:outside="openOrCloseRecebimentoModal"
-                            >
-                                <v-data-table
-                                    :headers="headersOtherTable"
-                                    :items="
-                                        item.tipoRecebimento.type ==
-                                        'recebimentoComBanco'
-                                            ? item.tipoRecebimento
-                                                  .tipoRecebimentoBancoLogs
-                                            : item.tipoRecebimento
-                                                  .tipoRecebimentoMoedaLogs
-                                    "
-                                    :items-per-page="999"
-                                    :item-key="
-                                        item.tipoRecebimento.type ==
-                                        'recebimentoComBanco'
-                                            ? item.tipoRecebimento
-                                                  .tipoRecebimentoBancoLogs.id
-                                            : item.tipoRecebimento
-                                                  .tipoRecebimentoMoedaLogs.id
-                                    "
-                                    class="elevation-1 fw"
-                                    no-data-text="Não foi encontrado nenhum dado!"
-                                    no-results-text="Não foi encontrado nenhum dado!"
-                                >
-                                </v-data-table>
-                            </v-dialog>
-                        </template>
-                        <template v-slot:item.repetir="{ item }">
+                        <template v-slot:[`item.repetir`]="{ item }">
                             <div
                                 :class="
                                     item.repetir ? 'purple--text' : 'red--text'
@@ -116,7 +71,7 @@
                                 {{ item.repetir ? "Sim" : "Não" }}
                             </div>
                         </template>
-                        <template v-slot:item.actions="{ item }">
+                        <template v-slot:[`item.actions`]="{ item }">
                             <v-icon small class="mr-2" @click="editItem(item)">
                                 mdi-pencil
                             </v-icon>
@@ -280,28 +235,57 @@ export default {
                 .catch(e => console.error(e.message));
         },
         filTable() {
-            ReceitaService.findAllPaginated(0, 5).then(res => {
-                this.receitas = res.content;
-                /*this.receitas = [
-                    {
-                        id: res.content.id,
-                        descricao: res.content.descricao,
-                        categoriaReceita: res.content.categoriaReceita,
-                        valor: res.content.valor,
-                        tipoRecebimento: res.content.tipoRecebimento,
-                        status:
-                            res.content.tipoRecebimento.type ==
-                            "recebimentoComBanco"
-                                ? res.content.tipoRecebimento.tipoRecebimentoBancoLogs.filter(e => {
-                                    e.
-                                })
-                                : res.content.tipoRecebimento.tipoRecebimentoMoedaLogs.forEach(e => {
-                                    e.
-                                }),
-                        repetir: res.content.repetir
-                    }
-                ];*/
-            });
+            ReceitaService.findAllPaginated(0, 5)
+                .then(resp => {
+                    this.receitas = resp.content.map(res => {
+                        return {
+                            id: res.id,
+                            descricao: res.descricao,
+                            categoriaReceita: res.categoriaReceita,
+                            valor: res.valor,
+                            tipoRecebimento:
+                                res.tipoRecebimento.type ===
+                                "recebimentoComBanco"
+                                    ? res.tipoRecebimento.tipoRecebimentoBancoLogs.reduce(
+                                          (a, b) =>
+                                              a.dataRecebimentoExperada >=
+                                              b.dataRecebimentoExperada
+                                                  ? a.dataRecebimentoExperada
+                                                  : b.dataRecebimentoExperada
+                                      )
+                                    : res.tipoRecebimento.tipoRecebimentoMoedaLogs.reduce(
+                                          (a, b) =>
+                                              a.dataRecebimentoExperada >=
+                                              b.dataRecebimentoExperada
+                                                  ? a.dataRecebimentoExperada
+                                                  : b.dataRecebimentoExperada
+                                      ),
+                            status:
+                                res.tipoRecebimento.type ===
+                                "recebimentoComBanco"
+                                    ? res.tipoRecebimento.tipoRecebimentoBancoLogs.reduce(
+                                          (a, b) =>
+                                              a.dataRecebimentoExperada >=
+                                              b.dataRecebimentoExperada
+                                                  ? a.statusReceita
+                                                  : b.statusReceita
+                                      )
+                                    : res.tipoRecebimento.tipoRecebimentoMoedaLogs.reduce(
+                                          (a, b) =>
+                                              a.dataRecebimentoExperada >=
+                                              b.dataRecebimentoExperada
+                                                  ? a.statusReceita
+                                                  : b.statusReceita
+                                      ),
+                            repetir: res.repetir
+                        };
+                    });
+                    this.receitas.forEach(e =>
+                        e.status.toString().replace("_", " ")
+                    );
+                    console.log("Receitas", this.receitas);
+                })
+                .catch(e => console.error(e));
         },
         fillBarChart() {
             ReceitaService.findReceitasLast6Months()

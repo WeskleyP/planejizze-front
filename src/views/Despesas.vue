@@ -64,7 +64,7 @@
                         </template>
                         <!-- TODO mudar isso aqui-->
                         <template
-                            v-slot:item.tipoPagamento="{
+                            v-slot:[`item.tipoPagamento`]="{
                                 item
                             }"
                             @click="openOrCloseRecebimentoModal"
@@ -108,7 +108,7 @@
                                 </v-data-table>
                             </v-dialog>
                         </template>
-                        <template v-slot:item.actions="{ item }">
+                        <template v-slot:[`item.actions`]="{ item }">
                             <v-icon small class="mr-2" @click="editItem(item)">
                                 mdi-pencil
                             </v-icon>

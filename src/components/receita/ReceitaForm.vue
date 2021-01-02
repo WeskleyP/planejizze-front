@@ -119,7 +119,6 @@ export default {
                 this.receita = res;
             })
             .catch(e => console.error(e));
-        console.log("criando o dialog");
     },
     methods: {
         close() {
