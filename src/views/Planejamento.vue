@@ -250,7 +250,6 @@ export default {
                     );
                     this.barChartPlan.chartOptions.colors.splice(0, 1);
                     this.barChartPlan.series.splice(0, 1);
-                    console.log("Last planejamento", this.lastPlan);
                 })
                 .catch(e => console.error(e));
         },

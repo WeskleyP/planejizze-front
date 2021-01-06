@@ -8,22 +8,22 @@
                             elevation="2"
                             color="rgba(95, 68, 115, 0.5)"
                             class="wid ma-5"
-                            >Você recebeu R$ {{ cards.v1 }} nos últimos 30
+                            >Você recebeu R$ {{ cards.v1 || 0 }} nos últimos 30
                             dias</v-card
                         >
                         <v-card
                             elevation="2"
                             color="rgba(132, 74, 112, 0.5)"
                             class="wid ma-5"
-                            >Você irá receber R$ {{ cards.v2 }} nos próximos 30
-                            dias</v-card
+                            >Você irá receber R$ {{ cards.v2 || 0 }} nos
+                            próximos 30 dias</v-card
                         >
                         <v-card
                             elevation="2"
                             color="rgba(81, 73, 118, 0.5)"
                             class="wid ma-5"
                             >Sua próxima receita será no valor de R$
-                            {{ cards.v3 }}</v-card
+                            {{ cards.v3 || 0 }}</v-card
                         >
                     </v-item-group>
                 </v-row>
@@ -244,21 +244,23 @@ export default {
                             categoriaReceita: res.categoriaReceita,
                             valor: res.valor,
                             tipoRecebimento:
-                                res.tipoRecebimento.type ===
+                                res.tipoRecebimento.type ==
                                 "recebimentoComBanco"
                                     ? res.tipoRecebimento.tipoRecebimentoBancoLogs.reduce(
                                           (a, b) =>
                                               a.dataRecebimentoExperada >=
                                               b.dataRecebimentoExperada
                                                   ? a.dataRecebimentoExperada
-                                                  : b.dataRecebimentoExperada
+                                                  : b.dataRecebimentoExperada,
+                                          ""
                                       )
                                     : res.tipoRecebimento.tipoRecebimentoMoedaLogs.reduce(
                                           (a, b) =>
                                               a.dataRecebimentoExperada >=
                                               b.dataRecebimentoExperada
                                                   ? a.dataRecebimentoExperada
-                                                  : b.dataRecebimentoExperada
+                                                  : b.dataRecebimentoExperada,
+                                          ""
                                       ),
                             status:
                                 res.tipoRecebimento.type ===
@@ -268,14 +270,16 @@ export default {
                                               a.dataRecebimentoExperada >=
                                               b.dataRecebimentoExperada
                                                   ? a.statusReceita
-                                                  : b.statusReceita
+                                                  : b.statusReceita,
+                                          ""
                                       )
                                     : res.tipoRecebimento.tipoRecebimentoMoedaLogs.reduce(
                                           (a, b) =>
                                               a.dataRecebimentoExperada >=
                                               b.dataRecebimentoExperada
                                                   ? a.statusReceita
-                                                  : b.statusReceita
+                                                  : b.statusReceita,
+                                          ""
                                       ),
                             repetir: res.repetir
                         };

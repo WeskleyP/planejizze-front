@@ -29,13 +29,26 @@
                         tile
                         width="100%"
                     >
-                        <div class="text-h6 text-left">
-                            Receitas
-                        </div>
+                        <v-row>
+                            <v-col cols="6">
+                                <v-subheader class="text-h6 text-left">
+                                    Receitas
+                                </v-subheader>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-select
+                                    :items="days"
+                                    v-model="selectedDay"
+                                    item-text="value"
+                                    item-value="num"
+                                    label="Escolha um período"
+                                ></v-select>
+                            </v-col>
+                        </v-row>
                     </v-sheet>
                     <apexchart
                         class="chartPos"
-                        width="380"
+                        width="450"
                         height="100%"
                         type="bar"
                         :options="horizontalBarData.chartOptions"
@@ -52,9 +65,22 @@
                         tile
                         width="100%"
                     >
-                        <div class="text-h6 text-left">
-                            Despesas
-                        </div>
+                        <v-row>
+                            <v-col cols="6">
+                                <v-subheader class="text-h6 text-left">
+                                    Despesas
+                                </v-subheader>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-select
+                                    :items="days"
+                                    v-model="selectedDay2"
+                                    item-text="value"
+                                    item-value="num"
+                                    label="Escolha um período"
+                                ></v-select>
+                            </v-col>
+                        </v-row>
                     </v-sheet>
                     <apexchart
                         class="chartPos"
@@ -81,13 +107,14 @@
                         class="chartPos"
                         width="380"
                         height="100%"
-                        type="scatter"
-                        :options="scatterData.chartOptions"
-                        :series="scatterData.series"
+                        type="bar"
+                        :options="lineData.chartOptions"
+                        :series="lineData.series"
                     ></apexchart>
                 </v-card>
             </v-col>
         </v-row>
+        <alert-message :attributes="alert" />
     </v-container>
 </template>
 
@@ -100,6 +127,12 @@ import { getMonth } from "date-fns";
 export default {
     data() {
         return {
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
             pieData: {
                 series: [],
                 chartOptions: {
@@ -107,9 +140,77 @@ export default {
                     colors: []
                 }
             },
-            horizontalBarData: null,
-            barData: null,
-            scatterData: null,
+            horizontalBarData: {
+                series: [
+                    {
+                        data: []
+                    }
+                ],
+                chartOptions: {
+                    xaxis: {
+                        categories: []
+                    },
+                    chart: {
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    colors: []
+                }
+            },
+            barData: {
+                series: [
+                    {
+                        data: []
+                    }
+                ],
+                chartOptions: {
+                    xaxis: {
+                        categories: []
+                    },
+                    chart: {
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    colors: []
+                }
+            },
+            lineData: {
+                series: [
+                    {
+                        data: []
+                    }
+                ],
+                chartOptions: {
+                    xaxis: {
+                        categories: []
+                    },
+                    labels: [],
+                    colors: [],
+                    chart: {
+                        toolbar: {
+                            show: false
+                        }
+                    }
+                }
+            },
             month: getMonth(new Date()) + 1,
             days: [
                 {
@@ -137,20 +238,29 @@ export default {
                     value: "1 ano"
                 }
             ],
-            selectedDay: null
+            selectedDay: null,
+            selectedDay2: null
         };
     },
     created() {
         this.selectedDay = this.days[3].num;
+        this.selectedDay2 = this.days[3].num;
     },
     mounted() {
         this.fillPieData();
-        this.fillHorizontalBarData();
-        this.fillBarData();
+        // this.fillHorizontalBarData();
+        // this.fillBarData();
         this.fillScatterData();
     },
     methods: {
         fillPieData() {
+            this.pieData = {
+                series: [],
+                chartOptions: {
+                    labels: [],
+                    colors: []
+                }
+            };
             DespesaService.porCategoriaEMês(this.month)
                 .then(res => {
                     res.map(r => {
@@ -159,24 +269,30 @@ export default {
                         this.pieData.chartOptions.colors.push(r.categoriaCor);
                     });
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
         },
         fillHorizontalBarData() {
-            ReceitaService.dashboard(this.selectedDay)
-                .then(res => {
-                    console.log(res);
-                })
-                .catch(e => console.error(e));
             this.horizontalBarData = {
                 series: [
                     {
-                        data: [400, 430]
+                        data: []
                     }
                 ],
                 chartOptions: {
+                    xaxis: {
+                        categories: []
+                    },
                     chart: {
-                        type: "bar",
-                        height: 350
+                        toolbar: {
+                            show: false
+                        }
                     },
                     plotOptions: {
                         bar: {
@@ -186,93 +302,145 @@ export default {
                     dataLabels: {
                         enabled: false
                     },
-                    xaxis: {
-                        categories: ["South Korea", "Canada"]
-                    }
+                    colors: []
                 }
             };
-            console.log("montando");
+            ReceitaService.dashboard(this.selectedDay)
+                .then(res => {
+                    res.map(item => item.age).filter(
+                        (value, index, self) => self.indexOf(value) === index
+                    );
+                    res.map(r => {
+                        let data = {
+                            name: r.categoriaReceita.nome,
+                            data: [
+                                {
+                                    x: r.categoriaReceita.nome,
+                                    y: r.valor
+                                }
+                            ]
+                        };
+                        this.horizontalBarData.series.push(data);
+                        this.horizontalBarData.chartOptions.xaxis.categories.push(
+                            r.categoriaReceita.nome
+                        );
+                        this.horizontalBarData.chartOptions.colors.push(
+                            r.categoriaReceita.cor
+                        );
+                    });
+                    this.horizontalBarData.chartOptions.colors.splice(0, 1);
+                    this.horizontalBarData.series.splice(0, 1);
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
         },
         fillBarData() {
-            DespesaService.dashboard(this.selectedDay)
-                .then(res => {
-                    console.log(res);
-                })
-                .catch(e => console.error(e));
             this.barData = {
                 series: [
                     {
-                        data: [400, 430]
+                        data: []
                     }
                 ],
                 chartOptions: {
+                    xaxis: {
+                        categories: []
+                    },
                     chart: {
-                        type: "bar",
-                        height: 350
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true
+                        }
                     },
                     dataLabels: {
                         enabled: false
                     },
-                    xaxis: {
-                        categories: ["South Korea", "Canada"]
-                    }
+                    colors: []
                 }
             };
+            DespesaService.dashboard(this.selectedDay2)
+                .then(res => {
+                    res.map(r => {
+                        let data = {
+                            name: r.categoriaDespesa.nome,
+                            data: [
+                                {
+                                    x: r.categoriaDespesa.nome,
+                                    y: r.valor
+                                }
+                            ]
+                        };
+                        this.barData.series.push(data);
+                        this.barData.chartOptions.xaxis.categories.push(
+                            r.categoriaDespesa.nome
+                        );
+                        this.barData.chartOptions.colors.push(
+                            r.categoriaDespesa.cor
+                        );
+                    });
+                    this.barData.chartOptions.colors.splice(0, 1);
+                    this.barData.series.splice(0, 1);
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
         },
         fillScatterData() {
             PlanejamentoService.findLastPlanejamento()
                 .then(res => {
-                    console.log(res);
+                    console.log("plan", res);
+                    res.planejamentoPrevistoRealCategorias.reduce(
+                        (a, b) => a.valorGastoAtual + b.valorGastoAtual
+                    );
+                    res.planejamentoPrevistoRealCategorias.forEach(r => {
+                        let data = {
+                            name: r.categoriaNome,
+                            data: [
+                                {
+                                    x: r.categoriaNome,
+                                    y: r.valorAtualGasto || 0
+                                }
+                            ]
+                        };
+                        this.lineData.series.push(data);
+                        this.lineData.chartOptions.xaxis.categories.push(
+                            r.categoriaNome
+                        );
+                        this.lineData.chartOptions.colors.push(r.categoriaCor);
+                    });
+                    this.lineData.chartOptions.colors.splice(0, 1);
+                    this.lineData.series.splice(0, 1);
                 })
-                .catch(e => console.error(e));
-            this.scatterData = {
-                series: [
-                    {
-                        name: "SAMPLE A",
-                        data: [
-                            [16.4, 5.4],
-                            [21.7, 2]
-                        ]
-                    },
-                    {
-                        name: "SAMPLE B",
-                        data: [
-                            [36.4, 13.4],
-                            [1.7, 11]
-                        ]
-                    },
-                    {
-                        name: "SAMPLE C",
-                        data: [
-                            [21.7, 3],
-                            [23.6, 3.5]
-                        ]
-                    }
-                ],
-                chartOptions: {
-                    chart: {
-                        type: "scatter",
-                        zoom: {
-                            enabled: true,
-                            type: "xy"
-                        }
-                    },
-                    xaxis: {
-                        tickAmount: 10,
-                        labels: {
-                            formatter: function(val) {
-                                return parseFloat(val).toFixed(1);
-                            }
-                        }
-                    },
-                    yaxis: {
-                        tickAmount: 7
-                    }
-                }
-            };
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
+        }
+    },
+    watch: {
+        selectedDay() {
+            this.fillHorizontalBarData();
         },
-        getRandomInt() {
-            return Math.floor(Math.random() * (50 - 5 + 1)) + 5;
+        selectedDay2() {
+            this.fillBarData();
         }
     }
 };

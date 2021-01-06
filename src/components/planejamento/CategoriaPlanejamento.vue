@@ -1,6 +1,6 @@
 <template>
     <v-row justify="center">
-        <v-dialog persistent v-model="open" max-width="80%">
+        <v-dialog persistent v-model="open" max-width="50%">
             <v-card>
                 <v-card-title class="flex-row justify-space-between">
                     <span class="headline font-title-crud"

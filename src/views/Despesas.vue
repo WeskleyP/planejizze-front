@@ -62,52 +62,6 @@
                                 </v-btn>
                             </v-toolbar>
                         </template>
-                        <!-- TODO mudar isso aqui-->
-                        <template
-                            v-slot:[`item.tipoPagamento`]="{
-                                item
-                            }"
-                            @click="openOrCloseRecebimentoModal"
-                        >
-                            <v-btn
-                                class="primary"
-                                @click="openOrCloseRecebimentoModal"
-                            >
-                                Status Receita
-                            </v-btn>
-                            <v-dialog
-                                v-if="pagamentoModal"
-                                v-model="item.tipoPagamento"
-                                max-width="500"
-                                style="height: 100%"
-                                @click:outside="openOrCloseRecebimentoModal"
-                            >
-                                <v-data-table
-                                    :headers="headersOtherTable"
-                                    :items="
-                                        item.tipoPagamento.type ==
-                                        'pagamentoComMoeda'
-                                            ? item.tipoPagamento
-                                                  .tipoPagamentoMoedaLogs
-                                            : item.tipoPagamento
-                                                  .tipoPagamentoCartaoParcelas
-                                    "
-                                    :items-per-page="999"
-                                    :item-key="
-                                        item.tipoPagamento.type ==
-                                        'pagamentoComMoeda'
-                                            ? item.tipoPagamento
-                                                  .tipoPagamentoMoedaLogs
-                                            : item.tipoPagamento
-                                                  .tipoPagamentoCartaoParcelas
-                                    "
-                                    class="elevation-1 fw"
-                                    no-data-text="Não foi encontrado nenhum dado!"
-                                    no-results-text="Não foi encontrado nenhum dado!"
-                                >
-                                </v-data-table>
-                            </v-dialog>
-                        </template>
                         <template v-slot:[`item.actions`]="{ item }">
                             <v-icon small class="mr-2" @click="editItem(item)">
                                 mdi-pencil
@@ -271,8 +225,52 @@ export default {
                 .catch(e => console.error(e.message));
         },
         filTable() {
-            DespesaService.findAllPaginated(0, 5).then(res => {
-                this.despesas = res.content;
+            DespesaService.findAllPaginated(0, 5).then(resp => {
+                this.despesas = resp.content.map(res => {
+                    return {
+                        id: res.id,
+                        descricao: res.descricao,
+                        categoriaDespesa: res.categoriaDespesa,
+                        valor: res.valor,
+                        tipoPagamento:
+                            res.tipoPagamento.type == "pagamentoComCartao"
+                                ? res.tipoPagamento.tipoPagamentoCartaoParcelas.reduce(
+                                      (a, b) =>
+                                          a.dataPagamentoExperada >=
+                                          b.dataPagamentoExperada
+                                              ? a.dataPagamentoExperada
+                                              : b.dataPagamentoExperada,
+                                      ""
+                                  )
+                                : res.tipoPagamento.tipoPagamentoMoedaLogs.reduce(
+                                      (a, b) =>
+                                          a.dataPagamentoExperada >=
+                                          b.dataPagamentoExperada
+                                              ? a.dataPagamentoExperada
+                                              : b.dataPagamentoExperada,
+                                      ""
+                                  ),
+                        status:
+                            res.tipoPagamento.type == "pagamentoComCartao"
+                                ? res.tipoPagamento.tipoPagamentoCartaoParcelas.reduce(
+                                      (a, b) =>
+                                          a.dataPagamentoExperada >=
+                                          b.dataPagamentoExperada
+                                              ? a.statusDespesa
+                                              : b.statusDespesa,
+                                      ""
+                                  )
+                                : res.tipoPagamento.tipoPagamentoMoedaLogs.reduce(
+                                      (a, b) =>
+                                          a.dataPagamentoExperada >=
+                                          b.dataPagamentoExperada
+                                              ? a.statusDespesa
+                                              : b.statusDespesa,
+                                      ""
+                                  ),
+                        repetir: res.repetir
+                    };
+                });
             });
         },
         fillBarChart() {

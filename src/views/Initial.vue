@@ -8,11 +8,14 @@
     >
         <slide class="pa-0 ma-0">
             <v-img
-                src="../assets/primeiroSvg.png"
+                src="../assets/primeiro.svg"
                 alt="Primeiro svg"
                 class="imgcss"
-                height="100%"
-                width="100%"
+            />
+            <v-img
+                src="../assets/oval.svg"
+                alt="Primeiro svg"
+                class="imgcss2"
             />
         </slide>
         <slide class="pa-0 ma-0">
@@ -38,9 +41,22 @@ export default {
 </script>
 <style scoped>
 .imgcss {
-    transform: scaleY(-1);
+    transform: scaleY(1);
+    position: absolute;
+    width: 1099.83px;
+    height: auto;
+    left: 0px;
+    top: 0px;
 }
-div > ul {
+.imgcss2 {
+    transform: scaleY(1);
+    position: absolute;
+    width: 467.05px;
+    height: 708.7px;
+    left: 600px;
+    top: 625.93px;
+}
+ul {
     padding-left: 0px;
 }
 </style>
