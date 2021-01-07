@@ -229,7 +229,6 @@ export default {
                     );
                     this.lastPlan.planejamentoPrevistoRealCategorias.forEach(
                         r => {
-                            console.log("cada catLastPlan", r);
                             let data = {
                                 name: r.categoriaNome,
                                 data: [

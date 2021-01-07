@@ -248,8 +248,6 @@ export default {
     },
     mounted() {
         this.fillPieData();
-        // this.fillHorizontalBarData();
-        // this.fillBarData();
         this.fillScatterData();
     },
     methods: {
@@ -402,7 +400,6 @@ export default {
         fillScatterData() {
             PlanejamentoService.findLastPlanejamento()
                 .then(res => {
-                    console.log("plan", res);
                     res.planejamentoPrevistoRealCategorias.reduce(
                         (a, b) => a.valorGastoAtual + b.valorGastoAtual
                     );

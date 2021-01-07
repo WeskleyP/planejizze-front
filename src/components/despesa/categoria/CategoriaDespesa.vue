@@ -5,8 +5,8 @@
                 <v-card-title class="flex-row justify-space-between">
                     <span class="headline font-title-crud">{{
                         this.idCat
-                            ? "Atualização de Categoria de Receita"
-                            : "Cadastro de Nova Categoria de Receita"
+                            ? "Atualização de Categoria de Despesa"
+                            : "Cadastro de Nova Categoria de Despesa"
                     }}</span>
                     <v-spacer></v-spacer>
                     <div class="flex-row justify-space-between">
@@ -62,7 +62,7 @@
     </v-row>
 </template>
 <script>
-import CategoriaReceitaService from "../../../services/CategoriaReceitaService";
+import CategoriaDespesaService from "../../../services/CategoriaDespesaService";
 
 export default {
     props: ["idCat"],
@@ -84,7 +84,7 @@ export default {
     },
     mounted() {
         if (this.idCat) {
-            this.findReceita(this.idCat);
+            this.findDespesa(this.idCat);
         }
     },
     methods: {
@@ -92,8 +92,8 @@ export default {
             this.$router.back();
             this.open = false;
         },
-        findReceita(id) {
-            CategoriaReceitaService.findById(id)
+        findDespesa(id) {
+            CategoriaDespesaService.findById(id)
                 .then(res => {
                     this.categoria = res;
                 })
@@ -108,7 +108,7 @@ export default {
         },
         salvar() {
             if (this.idCat || this.categoria.id != null) {
-                CategoriaReceitaService.update(this.categoria)
+                CategoriaDespesaService.update(this.categoria)
                     .then(() => {
                         this.alert = {
                             open: true,
@@ -127,7 +127,7 @@ export default {
                         };
                     });
             } else {
-                CategoriaReceitaService.save(this.categoria)
+                CategoriaDespesaService.save(this.categoria)
                     .then(() => {
                         this.alert = {
                             open: true,

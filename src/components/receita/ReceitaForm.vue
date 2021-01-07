@@ -50,20 +50,28 @@
                                     ><template v-slot:append-outer>
                                         <template
                                             v-if="
-                                                !receita.categoriaReceita &&
-                                                    !receita.categoriaReceita.id
+                                                receita.categoriaReceita.id ===
+                                                    null
                                             "
                                         >
-                                            <v-btn icon @click="addCategory()">
+                                            <v-btn
+                                                icon
+                                                @click="addCategory(null)"
+                                            >
                                                 <v-icon class="purple--text"
                                                     >mdi-plus-circle</v-icon
                                                 >
                                             </v-btn>
                                         </template>
                                         <template v-else>
+                                            {{ receita.categoriaReceita.id }}
                                             <v-btn
                                                 icon
-                                                @click="addCategory(id)"
+                                                @click="
+                                                    addCategory(
+                                                        receita.categoriaReceita
+                                                    )
+                                                "
                                             >
                                                 <v-icon class="purple--text"
                                                     >mdi-pencil</v-icon
@@ -85,8 +93,8 @@
                                     <span style="color: red"> * </span>
                                 </v-label>
                                 <v-menu
-                                    ref="menuStartDate"
-                                    v-model="menuStartDate"
+                                    ref="date"
+                                    v-model="date"
                                     :close-on-content-click="false"
                                     transition="scale-transition"
                                     offset-y
@@ -114,7 +122,7 @@
                                         "
                                         no-title
                                         scrollable
-                                        @input="menuStartDate = false"
+                                        @input="date = false"
                                     />
                                 </v-menu>
                                 <v-label>
@@ -166,7 +174,52 @@
                                                 item-text="banco"
                                                 item-value="id"
                                                 label="Escolha um banco"
-                                            ></v-select>
+                                                ><template v-slot:append-outer>
+                                                    <template
+                                                        v-if="
+                                                            receita
+                                                                .tipoRecebimento
+                                                                .banco.id ===
+                                                                null
+                                                        "
+                                                    >
+                                                        <v-btn
+                                                            icon
+                                                            @click="
+                                                                addBanco(null)
+                                                            "
+                                                        >
+                                                            <v-icon
+                                                                class="purple--text"
+                                                                >mdi-plus-circle</v-icon
+                                                            >
+                                                        </v-btn>
+                                                    </template>
+                                                    <template v-else>
+                                                        <v-btn
+                                                            icon
+                                                            @click="
+                                                                addBanco(
+                                                                    receita
+                                                                        .tipoRecebimento
+                                                                        .banco
+                                                                )
+                                                            "
+                                                        >
+                                                            <v-icon
+                                                                class="purple--text"
+                                                                >mdi-pencil</v-icon
+                                                            >
+                                                        </v-btn>
+                                                        <v-btn icon>
+                                                            <v-icon
+                                                                class="purple--text"
+                                                                >mdi-delete</v-icon
+                                                            >
+                                                        </v-btn>
+                                                    </template>
+                                                </template>
+                                            </v-select>
                                         </v-col>
                                     </v-row>
                                 </v-card>
@@ -207,7 +260,7 @@ export default {
                 title: "",
                 text: ""
             },
-            menuStartDate: false,
+            date: false,
             categoriaReceita: [],
             bancos: [],
             open: true,
@@ -247,14 +300,30 @@ export default {
         this.findCategoriasReceitas();
     },
     methods: {
-        addCategory() {
-            this.$router.push({ name: "CategoriaReceita" });
+        addCategory(id) {
+            if (id == null) {
+                this.$router.push({ name: "CategoriaReceita" });
+            } else {
+                this.$router.push({
+                    name: "EditCategoriaReceita",
+                    params: { idCat: id }
+                });
+            }
+        },
+        addBanco(id) {
+            if (id == null) {
+                this.$router.push({ name: "Banco" });
+            } else {
+                this.$router.push({
+                    name: "EditBanco",
+                    params: { idCat: id }
+                });
+            }
         },
         findCategoriasReceitas() {
             CategoriaReceitaService.findAll()
                 .then(res => {
                     this.categoriaReceita = res;
-                    console.log(res);
                 })
                 .catch(e => {
                     this.alert = {
@@ -270,7 +339,7 @@ export default {
             this.open = false;
         },
         formatTextDate(date) {
-            return date ? parse(date, "dd/MM/yyyy", "") : "";
+            return date ? parse(date, "dd/MM/yyyy", "20/01/2021") : "";
         },
         salvar() {
             console.log(this.receita);

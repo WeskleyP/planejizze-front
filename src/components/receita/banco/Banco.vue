@@ -5,8 +5,8 @@
                 <v-card-title class="flex-row justify-space-between">
                     <span class="headline font-title-crud">{{
                         this.idCat
-                            ? "Atualização de Categoria de Receita"
-                            : "Cadastro de Nova Categoria de Receita"
+                            ? "Atualização de Banco"
+                            : "Cadastro de Banco"
                     }}</span>
                     <v-spacer></v-spacer>
                     <div class="flex-row justify-space-between">
@@ -20,27 +20,40 @@
                         <v-row justify="center" class="py-5 my-5">
                             <v-col cols="10" class="mr-4">
                                 <v-label>
-                                    Nome da categoria
+                                    Nome do banco
                                     <span style="color: red"> * </span>
                                 </v-label>
                                 <v-text-field
                                     outlined
-                                    v-model="categoria.nome"
+                                    v-model="banco.banco"
                                     class="mb-5"
-                                    label="Nome da categoria"
+                                    label="Nome do banco"
                                     single-line
                                     hide-details
                                 ></v-text-field>
                                 <v-label>
-                                    Cor
+                                    Descrição do banco
                                     <span style="color: red"> * </span>
                                 </v-label>
-                                <v-color-picker
-                                    dot-size="25"
-                                    class="color"
-                                    width="500"
-                                    v-model="categoria.cor"
-                                ></v-color-picker>
+                                <v-text-field
+                                    outlined
+                                    v-model="banco.descricao"
+                                    class="mb-5"
+                                    label="Descrição do banco"
+                                    single-line
+                                    hide-details
+                                ></v-text-field>
+                                <v-label>
+                                    Tipo de Conta
+                                    <span style="color: red"> * </span>
+                                </v-label>
+                                <v-select
+                                    :items="tipoContas"
+                                    v-model="banco.tipoConta"
+                                    item-value="value"
+                                    item-text="nome"
+                                    label="Escolha um tipo de conta"
+                                ></v-select>
                             </v-col>
                         </v-row>
                         <v-divider />
@@ -62,7 +75,7 @@
     </v-row>
 </template>
 <script>
-import CategoriaReceitaService from "../../../services/CategoriaReceitaService";
+import BancoService from "../../../services/BancoService";
 
 export default {
     props: ["idCat"],
@@ -74,17 +87,32 @@ export default {
                 title: "",
                 text: ""
             },
-            categoria: {
+            tipoContas: [
+                {
+                    value: "CONTA_CORRENTE",
+                    nome: "Conta corrente"
+                },
+                {
+                    value: "CONTA_POUPANCA",
+                    nome: "Conta poupança"
+                },
+                {
+                    value: "CONTA_INVESTIMENTO",
+                    nome: "Conta de investimento"
+                }
+            ],
+            banco: {
                 id: null,
-                nome: "",
-                cor: ""
+                descricao: "",
+                banco: "",
+                tipoConta: ""
             },
             open: true
         };
     },
     mounted() {
         if (this.idCat) {
-            this.findReceita(this.idCat);
+            this.findBanco(this.idCat);
         }
     },
     methods: {
@@ -92,10 +120,10 @@ export default {
             this.$router.back();
             this.open = false;
         },
-        findReceita(id) {
-            CategoriaReceitaService.findById(id)
+        findBanco(id) {
+            BancoService.findById(id)
                 .then(res => {
-                    this.categoria = res;
+                    this.banco = res;
                 })
                 .catch(e => {
                     this.alert = {
@@ -107,8 +135,8 @@ export default {
                 });
         },
         salvar() {
-            if (this.idCat || this.categoria.id != null) {
-                CategoriaReceitaService.update(this.categoria)
+            if (this.idCat || this.banco.id != null) {
+                BancoService.update(this.banco)
                     .then(() => {
                         this.alert = {
                             open: true,
@@ -127,7 +155,7 @@ export default {
                         };
                     });
             } else {
-                CategoriaReceitaService.save(this.categoria)
+                BancoService.save(this.banco)
                     .then(() => {
                         this.alert = {
                             open: true,

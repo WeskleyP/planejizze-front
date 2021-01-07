@@ -247,8 +247,11 @@ export default {
                     xaxis: {
                         categories: []
                     },
+                    height: "auto",
                     noData: {
-                        text: "dasdsa"
+                        text: "Não foi possível encontrar dados!",
+                        align: "center",
+                        verticalAlign: "middle"
                     },
                     chart: {
                         toolbar: {
@@ -270,7 +273,12 @@ export default {
                 series: [],
                 chartOptions: {
                     labels: [],
-                    colors: []
+                    colors: [],
+                    noData: {
+                        text: "Não foi possível encontrar dados!",
+                        align: "center",
+                        verticalAlign: "middle"
+                    }
                 }
             },
             headers: [
@@ -433,7 +441,6 @@ export default {
                     this.receitas.forEach(e =>
                         e.status.toString().replace("_", " ")
                     );
-                    console.log("Receitas", this.receitas);
                 })
                 .catch(e => {
                     this.alert = {
@@ -485,7 +492,7 @@ export default {
             };
             ReceitaService.porCategoriaEMês(this.month)
                 .then(res => {
-                    if (res) {
+                    if (res.length > 0) {
                         res.map(r => {
                             this.pieChart.series.push(r.valor);
                             this.pieChart.chartOptions.labels.push(
@@ -505,7 +512,6 @@ export default {
                         text: e.message
                     };
                 });
-            console.log("pieChart", this.pieChart);
         }
     },
     watch: {

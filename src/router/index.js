@@ -93,6 +93,53 @@ const routes = [
                                 read: true
                             }
                         }
+                    },
+                    {
+                        path: ":idCat/edit-categoria-receita",
+                        name: "EditCategoriaReceita",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/categoria/CategoriaReceita.vue"
+                            )
+                    },
+                    {
+                        path: "banco",
+                        name: "Banco",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/banco/Banco.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-banco",
+                        name: "EditBanco",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/banco/Banco.vue"
+                            )
                     }
                 ]
             },
@@ -126,6 +173,53 @@ const routes = [
                                 read: true
                             }
                         }
+                    },
+                    {
+                        path: ":idCat/edit-categoria-receita",
+                        name: "EditCategoriaReceita",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/categoria/CategoriaReceita.vue"
+                            )
+                    },
+                    {
+                        path: "banco",
+                        name: "Banco",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/banco/Banco.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-banco",
+                        name: "EditBanco",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/banco/Banco.vue"
+                            )
                     }
                 ]
             }
@@ -195,7 +289,168 @@ const routes = [
             permission: {
                 read: true
             }
-        }
+        },
+        children: [
+            {
+                path: "new-despesa",
+                name: "NewDespesa",
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                beforeEnter(_to, _from, next) {
+                    console.log("Testando antes de entrar");
+                    next();
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/despesa/DespesaForm.vue"
+                    ),
+                children: [
+                    {
+                        path: "categoria-despesa",
+                        name: "CategoriaDespesa",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-categoria-despesa",
+                        name: "EditCategoriaDespesa",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            )
+                    },
+                    {
+                        path: "cartao",
+                        name: "Cartao",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/cartao/Cartao.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-cartao",
+                        name: "EditCartao",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/cartao/Cartao.vue"
+                            )
+                    }
+                ]
+            },
+            {
+                path: ":id/edit-despesa",
+                name: "EditDespesa",
+                props: true,
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                beforeEnter(_to, _from, next) {
+                    console.log("Testando antes de entrar");
+                    next();
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/despesa/DespesaForm.vue"
+                    ),
+                children: [
+                    {
+                        path: "categoria-despesa",
+                        name: "CategoriaDespesa",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-categoria-despesa",
+                        name: "EditCategoriaDespesa",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            )
+                    },
+                    {
+                        path: "cartao",
+                        name: "Cartao",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/cartao/Cartao.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-cartao",
+                        name: "EditCartao",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/cartao/Cartao.vue"
+                            )
+                    }
+                ]
+            }
+        ]
     }
 ];
 

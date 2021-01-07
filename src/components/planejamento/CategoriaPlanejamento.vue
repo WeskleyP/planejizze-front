@@ -71,9 +71,6 @@ export default {
             open: true
         };
     },
-    created() {
-        console.log(this.categorias);
-    },
     methods: {
         close() {
             this.$router.back();
