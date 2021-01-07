@@ -61,7 +61,6 @@
                                 </v-btn>
                             </v-toolbar>
                         </template>
-                        <!-- TODO mudar isso aqui-->
                         <template v-slot:[`item.repetir`]="{ item }">
                             <div
                                 :class="
@@ -105,13 +104,33 @@
                 </v-row>
                 <v-spacer />
                 <v-row justify="center" class="my-4">
-                    <v-card elevation="4" class="bgColor" width="95%">
+                    <v-card
+                        elevation="4"
+                        class="bgColor"
+                        width="95%"
+                        max-width="450"
+                    >
                         <v-sheet
                             class="px-4 pt-4 pb-3 text-center bgColor"
                             tile
                             width="100%"
                         >
-                            <div class="text-h6">Receitas por categoria</div>
+                            <v-row>
+                                <v-col cols="6">
+                                    <v-subheader class="text-h6 text-left">
+                                        Receitas por categoria
+                                    </v-subheader>
+                                </v-col>
+                                <v-col cols="6">
+                                    <v-select
+                                        :items="months"
+                                        v-model="month"
+                                        item-text="name"
+                                        item-value="value"
+                                        label="Escolha um período"
+                                    ></v-select>
+                                </v-col>
+                            </v-row>
                         </v-sheet>
                         <apexchart
                             width="100%"
@@ -124,6 +143,24 @@
                 </v-row>
             </v-col>
         </v-row>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card>
+                <v-card-title class="headline"
+                    >Você realmente deseja excluir a receita?</v-card-title
+                >
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="closeDelete"
+                        >Cancelar</v-btn
+                    >
+                    <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                        >OK</v-btn
+                    >
+                    <v-spacer></v-spacer>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <alert-message :attributes="alert" />
         <router-view />
     </v-container>
 </template>
@@ -133,9 +170,67 @@ import { getMonth } from "date-fns";
 export default {
     data() {
         return {
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
+            itemD: null,
+            dialogDelete: false,
             search: "",
             recebimentoModal: false,
-            month: getMonth(new Date()) + 1,
+            month: null,
+            months: [
+                {
+                    name: "Janeiro",
+                    value: 1
+                },
+                {
+                    name: "Fevereiro",
+                    value: 2
+                },
+                {
+                    name: "Março",
+                    value: 3
+                },
+                {
+                    name: "Abril",
+                    value: 4
+                },
+                {
+                    name: "Maio",
+                    value: 5
+                },
+                {
+                    name: "Junho",
+                    value: 6
+                },
+                {
+                    name: "Julho",
+                    value: 7
+                },
+                {
+                    name: "Agosto",
+                    value: 8
+                },
+                {
+                    name: "Setembro",
+                    value: 9
+                },
+                {
+                    name: "Outubro",
+                    value: 10
+                },
+                {
+                    name: "Novembro",
+                    value: 11
+                },
+                {
+                    name: "Dezembro",
+                    value: 12
+                }
+            ],
             cards: {
                 v1: 0,
                 v2: 0,
@@ -151,6 +246,9 @@ export default {
                 chartOptions: {
                     xaxis: {
                         categories: []
+                    },
+                    noData: {
+                        text: "dasdsa"
                     },
                     chart: {
                         toolbar: {
@@ -175,15 +273,6 @@ export default {
                     colors: []
                 }
             },
-            headersOtherTable: [
-                {
-                    text: "Data Recebimento Experada",
-                    value: "dataRecebimentoExperada"
-                },
-                { text: "Data Recebimento Real", value: "dataRecebimentoReal" },
-                { text: "Status", value: "statusReceita" },
-                { text: "Valor Recebido", value: "valorRecebido" }
-            ],
             headers: [
                 {
                     text: "Descrição",
@@ -205,10 +294,12 @@ export default {
         };
     },
     created() {
+        this.month = this.months.find(
+            e => e.value == getMonth(new Date()) + 1
+        ).value;
         this.fillCardData();
         this.filTable();
         this.fillBarChart();
-        this.fillPieChart(this.month);
     },
     methods: {
         openOrCloseRecebimentoModal() {
@@ -217,22 +308,77 @@ export default {
         addNewItem() {
             this.$router.push({ name: "NewReceita" });
         },
+        editItem(id) {
+            this.$router.push({ name: "EditReceita", params: id });
+        },
+        delete(id) {
+            ReceitaService.delete(id)
+                .then(() => {
+                    this.alert = {
+                        open: true,
+                        color: "success",
+                        title: "Receita excluida com sucesso",
+                        text: ""
+                    };
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
+        },
+        deleteItem(item) {
+            this.itemD = item.id;
+            this.dialogDelete = true;
+        },
+        deleteItemConfirm() {
+            this.delete(this.itemD);
+            this.closeDelete();
+        },
+        closeDelete() {
+            this.itemD = null;
+            this.dialogDelete = false;
+        },
         fillCardData() {
             ReceitaService.findReceitasLast30Days()
                 .then(res => {
                     this.cards.v1 = res.count;
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
             ReceitaService.findReceitasNext30Days()
                 .then(res => {
                     this.cards.v2 = res.count;
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
             ReceitaService.findNextReceita()
                 .then(res => {
                     this.cards.v3 = res.count;
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
         },
         filTable() {
             ReceitaService.findAllPaginated(0, 5)
@@ -289,7 +435,14 @@ export default {
                     );
                     console.log("Receitas", this.receitas);
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
         },
         fillBarChart() {
             ReceitaService.findReceitasLast6Months()
@@ -313,18 +466,51 @@ export default {
                     this.barChart.chartOptions.colors.splice(0, 1);
                     this.barChart.series.splice(0, 1);
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
         },
-        fillPieChart(mes) {
-            ReceitaService.porCategoriaEMês(mes)
+        fillPieChart() {
+            this.pieChart = {
+                series: [],
+                chartOptions: {
+                    labels: [],
+                    colors: []
+                }
+            };
+            ReceitaService.porCategoriaEMês(this.month)
                 .then(res => {
-                    res.map(r => {
-                        this.pieChart.series.push(r.valor);
-                        this.pieChart.chartOptions.labels.push(r.categoriaNome);
-                        this.pieChart.chartOptions.colors.push(r.categoriaCor);
-                    });
+                    if (res) {
+                        res.map(r => {
+                            this.pieChart.series.push(r.valor);
+                            this.pieChart.chartOptions.labels.push(
+                                r.categoriaNome
+                            );
+                            this.pieChart.chartOptions.colors.push(
+                                r.categoriaCor
+                            );
+                        });
+                    }
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
+            console.log("pieChart", this.pieChart);
+        }
+    },
+    watch: {
+        month() {
+            this.fillPieChart();
         }
     }
 };

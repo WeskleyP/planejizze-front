@@ -17,6 +17,10 @@
                     <v-card-text>
                         <v-row justify="center" class="py-5 my-5">
                             <v-col cols="5" xs="12" md="5" lg="5" class="mr-4">
+                                <v-label>
+                                    Valor
+                                    <span style="color: red"> * </span>
+                                </v-label>
                                 <v-text-field
                                     outlined
                                     v-model="receita.valor"
@@ -25,35 +29,98 @@
                                     single-line
                                     hide-details
                                 ></v-text-field>
-                                <v-text-field
-                                    outlined
-                                    v-model="receita.tipoRecebimento"
-                                    class="mb-5"
-                                    label="Status"
-                                    single-line
-                                    hide-details
-                                ></v-text-field>
-                                <v-text-field
-                                    outlined
+                                <v-label>
+                                    A receita irá se repetir
+                                    <span style="color: red"> * </span>
+                                </v-label>
+                                <v-switch
+                                    v-model="receita.repetir"
+                                    label="Repete-se?"
+                                ></v-switch>
+                                <v-label>
+                                    Categoria da receita
+                                    <span style="color: red"> * </span>
+                                </v-label>
+                                <v-select
+                                    :items="categoriaReceita"
                                     v-model="receita.categoriaReceita"
-                                    class="mb-5"
-                                    label="Categoria"
-                                    single-line
-                                    hide-details
-                                ></v-text-field>
+                                    item-text="nome"
+                                    item-value="id"
+                                    label="Escolha uma categoria"
+                                    ><template v-slot:append-outer>
+                                        <template
+                                            v-if="
+                                                !receita.categoriaReceita &&
+                                                    !receita.categoriaReceita.id
+                                            "
+                                        >
+                                            <v-btn icon @click="addCategory()">
+                                                <v-icon class="purple--text"
+                                                    >mdi-plus-circle</v-icon
+                                                >
+                                            </v-btn>
+                                        </template>
+                                        <template v-else>
+                                            <v-btn
+                                                icon
+                                                @click="addCategory(id)"
+                                            >
+                                                <v-icon class="purple--text"
+                                                    >mdi-pencil</v-icon
+                                                >
+                                            </v-btn>
+                                            <v-btn icon>
+                                                <v-icon class="purple--text"
+                                                    >mdi-delete</v-icon
+                                                >
+                                            </v-btn>
+                                        </template>
+                                    </template>
+                                </v-select>
                             </v-col>
                             <v-divider vertical />
                             <v-col cols="5" xs="12" md="5" lg="5" class="ml-4">
-                                <v-text-field
-                                    outlined
-                                    v-model="
-                                        receita.tipoRecebimento.diaPagamento
-                                    "
-                                    class="mb-5"
-                                    label="Data de Recebimento"
-                                    single-line
-                                    hide-details
-                                ></v-text-field>
+                                <v-label>
+                                    Data de Recebimento
+                                    <span style="color: red"> * </span>
+                                </v-label>
+                                <v-menu
+                                    ref="menuStartDate"
+                                    v-model="menuStartDate"
+                                    :close-on-content-click="false"
+                                    transition="scale-transition"
+                                    offset-y
+                                    min-width="290px"
+                                >
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-text-field
+                                            required
+                                            outlined
+                                            dense
+                                            readonly
+                                            :value="
+                                                formatTextDate(
+                                                    receita.tipoRecebimento
+                                                        .diaPagamento
+                                                )
+                                            "
+                                            v-bind="attrs"
+                                            v-on="on"
+                                        ></v-text-field>
+                                    </template>
+                                    <v-date-picker
+                                        v-model="
+                                            receita.tipoRecebimento.diaPagamento
+                                        "
+                                        no-title
+                                        scrollable
+                                        @input="menuStartDate = false"
+                                    />
+                                </v-menu>
+                                <v-label>
+                                    Descrição
+                                    <span style="color: red"> * </span>
+                                </v-label>
                                 <v-text-field
                                     outlined
                                     v-model="receita.descricao"
@@ -62,14 +129,47 @@
                                     single-line
                                     hide-details
                                 ></v-text-field>
-                                <v-text-field
-                                    outlined
-                                    v-model="receita.tipoRecebimento"
-                                    class="mb-5"
-                                    label="Tipo recebimento"
-                                    single-line
-                                    hide-details
-                                ></v-text-field>
+                                <v-label>
+                                    Forma de recebimento
+                                    <span style="color: red"> * </span>
+                                </v-label>
+                                <v-card elevation="2" :disabled="id != null">
+                                    <v-row>
+                                        <v-col cols="5">
+                                            <v-radio-group
+                                                v-model="
+                                                    receita.tipoRecebimento.type
+                                                "
+                                            >
+                                                <v-radio
+                                                    label="Conta"
+                                                    value="recebimentoComBanco"
+                                                ></v-radio>
+                                                <v-radio
+                                                    label="Dinheiro"
+                                                    value="recebimentoComMoeda"
+                                                ></v-radio>
+                                            </v-radio-group>
+                                        </v-col>
+                                        <v-col cols="7">
+                                            <v-select
+                                                v-if="
+                                                    receita.tipoRecebimento
+                                                        .type ===
+                                                        'recebimentoComBanco'
+                                                "
+                                                :items="bancos"
+                                                v-model="
+                                                    receita.tipoRecebimento
+                                                        .banco
+                                                "
+                                                item-text="banco"
+                                                item-value="id"
+                                                label="Escolha um banco"
+                                            ></v-select>
+                                        </v-col>
+                                    </v-row>
+                                </v-card>
                             </v-col>
                         </v-row>
                         <v-divider />
@@ -78,22 +178,38 @@
                             <v-btn class="bgIndex" @click="close()"
                                 >Cancelar</v-btn
                             >
-                            <v-btn class="primary">Salvar</v-btn>
+                            <v-btn class="primary" @click="salvar()"
+                                >Salvar</v-btn
+                            >
                         </v-row>
                     </v-card-text>
                 </v-form>
             </v-card>
+            <router-view />
         </v-dialog>
+        <alert-message :attributes="alert" />
     </v-row>
 </template>
 
 <script>
 import ReceitaService from "../../services/ReceitaService";
+import CategoriaReceitaService from "../../services/CategoriaReceitaService";
+import BancoService from "../../services/BancoService";
+import { parse } from "date-fns";
 
 export default {
     props: ["id"],
     data() {
         return {
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
+            menuStartDate: false,
+            categoriaReceita: [],
+            bancos: [],
             open: true,
             receita: {
                 id: null,
@@ -101,7 +217,7 @@ export default {
                 valor: null,
                 repetir: false,
                 tipoRecebimento: {
-                    type: "",
+                    type: "recebimentoComMoeda",
                     banco: {
                         id: null
                     },
@@ -114,16 +230,73 @@ export default {
         };
     },
     created() {
-        ReceitaService.findById(this.id)
-            .then(res => {
-                this.receita = res;
-            })
-            .catch(e => console.error(e));
+        if (this.id) {
+            ReceitaService.findById(this.id)
+                .then(res => {
+                    this.receita = res;
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
+        }
+        this.findCategoriasReceitas();
     },
     methods: {
+        addCategory() {
+            this.$router.push({ name: "CategoriaReceita" });
+        },
+        findCategoriasReceitas() {
+            CategoriaReceitaService.findAll()
+                .then(res => {
+                    this.categoriaReceita = res;
+                    console.log(res);
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro a buscar dados",
+                        text: e.message
+                    };
+                });
+        },
         close() {
             this.$router.back();
             this.open = false;
+        },
+        formatTextDate(date) {
+            return date ? parse(date, "dd/MM/yyyy", "") : "";
+        },
+        salvar() {
+            console.log(this.receita);
+        }
+    },
+    computed: {
+        receb() {
+            return this.receita.tipoRecebimento.type;
+        }
+    },
+    watch: {
+        receb() {
+            if (this.receita.tipoRecebimento.type == "recebimentoComBanco") {
+                BancoService.findAll()
+                    .then(res => {
+                        this.bancos = res;
+                    })
+                    .catch(e => {
+                        this.alert = {
+                            open: true,
+                            color: "error",
+                            title: "Erro a buscar dados",
+                            text: e.message
+                        };
+                    });
+            }
         }
     }
 };

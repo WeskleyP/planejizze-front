@@ -99,8 +99,8 @@
                         tile
                         width="100%"
                     >
-                        <div class="text-h6 text-left">
-                            Planejamento
+                        <div class="text-h6 text-center">
+                            Último planejamento
                         </div>
                     </v-sheet>
                     <apexchart

@@ -79,7 +79,55 @@ const routes = [
                 component: () =>
                     import(
                         /* webpackChunkName: "internal" */ "../components/receita/ReceitaForm.vue"
-                    )
+                    ),
+                children: [
+                    {
+                        path: "categoria-receita",
+                        name: "CategoriaReceita",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/categoria/CategoriaReceita.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                path: ":id/edit-receita",
+                name: "EditReceita",
+                props: true,
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                beforeEnter(_to, _from, next) {
+                    console.log("Testando antes de entrar");
+                    next();
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/receita/ReceitaForm.vue"
+                    ),
+                children: [
+                    {
+                        path: "categoria-receita",
+                        name: "CategoriaReceita",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/receita/categoria/CategoriaReceita.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    }
+                ]
             }
         ]
     },
