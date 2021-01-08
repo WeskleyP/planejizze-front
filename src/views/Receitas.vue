@@ -333,7 +333,7 @@ export default {
                     this.alert = {
                         open: true,
                         color: "error",
-                        title: "Erro a buscar dados",
+                        title: "Erro ao tentar excluir",
                         text: e.message
                     };
                 });

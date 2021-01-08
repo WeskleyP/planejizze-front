@@ -58,7 +58,7 @@
                             </div>
                             <apexchart
                                 width="100%"
-                                type="pie"
+                                type="bar"
                                 :options="barChartPlan.chartOptions"
                                 :series="barChartPlan.series"
                             ></apexchart>
@@ -85,6 +85,24 @@
                         no-data-text="Não foi encontrado nenhum dado!"
                         no-results-text="Não foi encontrado nenhum dado!"
                     >
+                        <template v-slot:top>
+                            <v-toolbar flat>
+                                <v-text-field
+                                    v-model="search"
+                                    append-icon="mdi-magnify"
+                                    label="Pesquisar"
+                                    single-line
+                                    hide-details
+                                ></v-text-field>
+                                <v-btn
+                                    color="primary"
+                                    class="mb-2 ml-2"
+                                    @click="addNewItem()"
+                                >
+                                    Adicionar novo planejamento
+                                </v-btn>
+                            </v-toolbar>
+                        </template>
                         <template v-slot:[`item.categorias`]="{ item }">
                             <v-btn
                                 class="primary white--text"
@@ -115,9 +133,22 @@
                             tile
                             width="100%"
                         >
-                            <div class="text-h6">
-                                Planejamento previsto / Despesa real
-                            </div>
+                            <v-row>
+                                <v-col cols="6">
+                                    <v-subheader class="text-h6 text-left">
+                                        Planejamento previsto / Despesa real
+                                    </v-subheader>
+                                </v-col>
+                                <v-col cols="6">
+                                    <v-select
+                                        :items="planDropdown"
+                                        v-model="pd"
+                                        item-text="descricao"
+                                        item-value="id"
+                                        label="Escolha um período"
+                                    ></v-select>
+                                </v-col>
+                            </v-row>
                         </v-sheet>
                         <apexchart
                             width="100%"
@@ -141,6 +172,10 @@ export default {
     data() {
         return {
             progressValue: 0,
+            itemD: null,
+            pd: null,
+            search: "",
+            dialogDelete: false,
             barChartPlan: {
                 series: [
                     {
@@ -203,14 +238,61 @@ export default {
                 { text: "Categorias", value: "categorias" },
                 { text: "Opções", value: "actions" }
             ],
-            planejamentos: []
+            planejamentos: [],
+            planDropdown: []
         };
     },
     created() {
         this.fillData();
         this.lastPlanejamento();
+        this.planDrop();
     },
     methods: {
+        addNewItem() {
+            this.$router.push({ name: "PlanejamentoForm" });
+        },
+        editItem(id) {
+            this.$router.push({ name: "EditPlanejamentoForm", params: id });
+        },
+        planDrop() {
+            PlanejamentoService.findAllDropdown()
+                .then(res => {
+                    this.planDropdown = res;
+                    this.pd = this.planDropdown[0].id || null;
+                })
+                .catch(e => console.error(e));
+        },
+        delete(id) {
+            PlanejamentoService.delete(id)
+                .then(() => {
+                    this.alert = {
+                        open: true,
+                        color: "success",
+                        title: "Planejamento excluido com sucesso",
+                        text: ""
+                    };
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir",
+                        text: e.message
+                    };
+                });
+        },
+        deleteItem(item) {
+            this.itemD = item.id;
+            this.dialogDelete = true;
+        },
+        deleteItemConfirm() {
+            this.delete(this.itemD);
+            this.closeDelete();
+        },
+        closeDelete() {
+            this.itemD = null;
+            this.dialogDelete = false;
+        },
         lastPlanejamento() {
             PlanejamentoService.findLastPlanejamento()
                 .then(resp => {
@@ -227,26 +309,24 @@ export default {
                     this.lastPlan.planejamentoPrevistoRealCategorias.reduce(
                         (a, b) => a.valorGastoAtual + b.valorGastoAtual
                     );
-                    this.lastPlan.planejamentoPrevistoRealCategorias.forEach(
-                        r => {
-                            let data = {
-                                name: r.categoriaNome,
-                                data: [
-                                    {
-                                        x: r.categoriaNome,
-                                        y: r.valorAtualGasto || 0
-                                    }
-                                ]
-                            };
-                            this.barChartPlan.series.push(data);
-                            this.barChartPlan.chartOptions.xaxis.categories.push(
-                                r.categoriaNome
-                            );
-                            this.barChartPlan.chartOptions.colors.push(
-                                r.categoriaCor
-                            );
-                        }
-                    );
+                    this.lastPlan.planejamentoPrevistoRealCategorias.map(r => {
+                        let data = {
+                            name: r.categoriaNome,
+                            data: [
+                                {
+                                    x: r.categoriaNome,
+                                    y: r.valorAtualGasto || 0
+                                }
+                            ]
+                        };
+                        this.barChartPlan.series.push(data);
+                        this.barChartPlan.chartOptions.xaxis.categories.push(
+                            r.categoriaNome
+                        );
+                        this.barChartPlan.chartOptions.colors.push(
+                            r.categoriaCor
+                        );
+                    });
                     this.barChartPlan.chartOptions.colors.splice(0, 1);
                     this.barChartPlan.series.splice(0, 1);
                 })
@@ -256,14 +336,12 @@ export default {
             PlanejamentoService.findAllPaginated(0, 5)
                 .then(res => {
                     this.planejamentos = res.content;
-                    this.fillPieChart();
+                    this.findSecondChart();
                 })
                 .catch(e => console.error(e));
         },
-        fillPieChart() {
-            PlanejamentoService.findPlanejamentoPrevistoDespesaReal(
-                this.planejamentos[0].id
-            )
+        findSecondChart() {
+            PlanejamentoService.findPlanejamentoPrevistoDespesaReal(this.pd)
                 .then(res => {
                     let data = {
                         name: "Meta de Gastos",
@@ -278,7 +356,7 @@ export default {
                         name: "Gastos por categorias",
                         data: []
                     };
-                    res.planejamentoPrevistoRealCategorias.forEach(e => {
+                    res.planejamentoPrevistoRealCategorias.map(e => {
                         anotherData.data.push({
                             x: e.categoriaNome,
                             y: e.categoriaCor
@@ -287,6 +365,7 @@ export default {
                     this.barChart.series.push(data);
                     this.barChart.series.push(anotherData);
                     this.barChart.series.splice(0, 1);
+                    console.log(this.barChart);
                 })
                 .catch(e => console.error(e));
         },
@@ -295,6 +374,11 @@ export default {
                 name: "PlanejamentosCategorias",
                 params: { categorias }
             });
+        }
+    },
+    watch: {
+        pd() {
+            this.findSecondChart();
         }
     }
 };

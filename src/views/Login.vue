@@ -58,7 +58,7 @@
                                         class="menuBg"
                                         height="20"
                                         outlined
-                                        @click="login"
+                                        @click="register"
                                     >
                                         <span class="bt-text">
                                             Não tem conta? Crie a sua agora
@@ -103,6 +103,7 @@ export default {
                     this.$store.commit("LOGIN", response);
                     AuthenticationService.clarifyToken(response.token).then(
                         response => {
+                            console.log(response);
                             this.$store.commit("PERMS", response.body);
                             this.$router.push({ name: "DashBoard" });
                         }
@@ -114,6 +115,9 @@ export default {
         },
         forgetPassword() {
             this.$router.push({ name: "ForgetPassword" });
+        },
+        register() {
+            this.$router.push({ name: "Register" });
         }
     }
 };

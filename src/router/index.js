@@ -19,6 +19,19 @@ const routes = [
         }
     },
     {
+        path: "/register",
+        name: "Register",
+        component: () =>
+            import(/* webpackChunkName: "internal" */ "../views/Register.vue"),
+        meta: {
+            public: true
+        },
+        beforeEnter(_to, _from, next) {
+            store.commit("LOGOUT");
+            next();
+        }
+    },
+    {
         path: "/login",
         name: "Login",
         component: () =>
@@ -251,6 +264,97 @@ const routes = [
                     import(
                         /* webpackChunkName: "internal" */ "../components/planejamento/CategoriaPlanejamento.vue"
                     )
+            },
+            {
+                path: "new-planejamento",
+                name: "PlanejamentoForm",
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/planejamento/PlanejamentoForm.vue"
+                    ),
+                children: [
+                    {
+                        path: "categoria-despesa",
+                        name: "CategoriaDespesa",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-categoria-despesa",
+                        name: "EditCategoriaDespesa",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            )
+                    }
+                ]
+            },
+            {
+                path: ":id/edit-planejamento",
+                name: "EditPlanejamentoForm",
+                props: true,
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/planejamento/PlanejamentoForm.vue"
+                    ),
+                children: [
+                    {
+                        path: "categoria-despesa",
+                        name: "CategoriaDespesa",
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            ),
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        }
+                    },
+                    {
+                        path: ":idCat/edit-categoria-despesa",
+                        name: "EditCategoriaDespesa",
+                        props: true,
+                        meta: {
+                            permission: {
+                                read: true
+                            }
+                        },
+                        beforeEnter(_to, _from, next) {
+                            next();
+                        },
+                        component: () =>
+                            import(
+                                /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
+                            )
+                    }
+                ]
             }
         ]
     },

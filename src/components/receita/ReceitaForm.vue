@@ -3,9 +3,11 @@
         <v-dialog persistent v-model="open" max-width="80%">
             <v-card>
                 <v-card-title class="flex-row justify-space-between">
-                    <span class="headline font-title-crud"
-                        >Cadastro de Nova Receita</span
-                    >
+                    <span class="headline font-title-crud">{{
+                        this.id
+                            ? "Atualização de Receita"
+                            : "Cadastro de Nova Receita"
+                    }}</span>
                     <v-spacer></v-spacer>
                     <div class="flex-row justify-space-between">
                         <v-icon @click="close()">
@@ -64,7 +66,6 @@
                                             </v-btn>
                                         </template>
                                         <template v-else>
-                                            {{ receita.categoriaReceita.id }}
                                             <v-btn
                                                 icon
                                                 @click="

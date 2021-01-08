@@ -9,31 +9,14 @@
             <v-col cols="9">
                 <v-sheet class="mx-auto">
                     <v-slide-group show-arrows class="bgColor">
-                        <v-slide-item>
+                        <v-slide-item v-for="(role, i) in roles" :key="role.id">
                             <v-card
                                 elevation="4"
                                 class="align wid ma-5"
-                                color="#B8A9FF"
+                                width="330px"
+                                :color="colors[i]"
                             >
-                                Relatório de Despesas por Categoria
-                            </v-card>
-                        </v-slide-item>
-                        <v-slide-item>
-                            <v-card
-                                elevation="4"
-                                class="align wid ma-5"
-                                color="#9C87FF"
-                            >
-                                Relatório de Despesas X Receitas
-                            </v-card>
-                        </v-slide-item>
-                        <v-slide-item>
-                            <v-card
-                                elevation="4"
-                                class="align wid ma-5"
-                                color="#7C63EF"
-                            >
-                                Relatório de Planejamento X Despesa X Receita
+                                {{ role.nome }}
                             </v-card>
                         </v-slide-item>
                     </v-slide-group>
@@ -112,9 +95,12 @@
 </template>
 
 <script>
+import RoleService from "../services/RoleService";
 export default {
     data() {
         return {
+            search: "",
+            colors: ["#0ACF83", "#8000FF", "#FF0742"],
             headers: [
                 {
                     text: "Nome",
@@ -157,8 +143,21 @@ export default {
                     colors: []
                 }
             },
-            users: []
+            users: [],
+            roles: []
         };
+    },
+    created() {
+        this.findAllRoles();
+    },
+    methods: {
+        findAllRoles() {
+            RoleService.findAll()
+                .then(res => {
+                    this.roles = res;
+                })
+                .catch(e => console.error(e));
+        }
     }
 };
 </script>

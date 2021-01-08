@@ -36,7 +36,7 @@
                 </v-list-item-content>
             </v-list-item>
         </v-list>
-        <template v-slot:append>
+        <template v-slot:append v-if="!premium">
             <v-list dense>
                 <v-list-item class="hovering ma-1 pl-3 menus bg-menus">
                     <v-list-item-icon>
@@ -98,6 +98,15 @@ export default {
             set(val) {
                 this.$store.commit("SET_DRAWER", val);
             }
+        },
+        premium() {
+            let premium = JSON.parse(localStorage.getItem("permissions"));
+            return (
+                premium.report.read &&
+                premium.report.create &&
+                premium.report.update &&
+                premium.report.delete
+            );
         }
     }
 };

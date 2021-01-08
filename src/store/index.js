@@ -18,8 +18,12 @@ export default new Vuex.Store({
             state.token = data.token;
         },
         PERMS(_state, data) {
-            localStorage.setItem("expire", data.expire);
-            localStorage.setItem("permissions", data.permissions);
+            console.log(data.permissions);
+            localStorage.setItem("expire", data.exp);
+            localStorage.setItem(
+                "permissions",
+                JSON.stringify(data.permissions)
+            );
         },
         LOGOUT(state) {
             sessionStorage.clear();

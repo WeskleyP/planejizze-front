@@ -41,7 +41,7 @@
             </v-col>
         </v-row>
         <v-row>
-            <v-col cols="10">
+            <v-col cols="9">
                 <v-expansion-panels class="mx-5">
                     <v-expansion-panel>
                         <v-expansion-panel-header
@@ -59,7 +59,7 @@
                     </v-expansion-panel>
                 </v-expansion-panels>
             </v-col>
-            <v-col cols="2">
+            <v-col cols="3">
                 <v-btn
                     rounded
                     color="rgba(112,0,73,0.5)"
