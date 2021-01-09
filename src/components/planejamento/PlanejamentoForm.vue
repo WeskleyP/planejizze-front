@@ -32,64 +32,32 @@
                                     hide-details
                                 ></v-text-field>
                                 <v-label>
-                                    Receita Total
+                                    Categorias do planejamento
                                     <span style="color: red"> * </span>
                                 </v-label>
-                                <v-text-field
-                                    outlined
-                                    v-model="planejamento.receitaTotal"
-                                    class="mb-5"
-                                    label="Receita Total"
-                                    single-line
-                                    hide-details
-                                ></v-text-field>
-                                <v-label>
-                                    Categoria da planejamento
-                                    <span style="color: red"> * </span>
-                                </v-label>
-                                <!-- <v-select
+                                <v-select
                                     :items="categoriaDespesa"
-                                    v-model="planejamento.categoriaDespesa"
+                                    v-model="planejamento.categorias"
                                     item-text="nome"
                                     item-value="id"
+                                    multiple
                                     label="Escolha uma categoria"
-                                    ><template v-slot:append-outer>
-                                        <template
-                                            v-if="
-                                                planejamento.categorias.id ===
-                                                    null
+                                    ><template v-slot:item="{ item }">
+                                        <span>{{ item.nome }}</span>
+                                        <v-spacer />
+                                        <v-text-field
+                                            outlined
+                                            v-model="
+                                                planejamento.categorias
+                                                    .valorMaximoGasto
                                             "
-                                        >
-                                            <v-btn
-                                                icon
-                                                @click="addCategory(null)"
-                                            >
-                                                <v-icon class="purple--text"
-                                                    >mdi-plus-circle</v-icon
-                                                >
-                                            </v-btn>
-                                        </template>
-                                        <template v-else>
-                                            <v-btn
-                                                icon
-                                                @click="
-                                                    addCategory(
-                                                        planejamento.categorias
-                                                    )
-                                                "
-                                            >
-                                                <v-icon class="purple--text"
-                                                    >mdi-pencil</v-icon
-                                                >
-                                            </v-btn>
-                                            <v-btn icon>
-                                                <v-icon class="purple--text"
-                                                    >mdi-delete</v-icon
-                                                >
-                                            </v-btn>
-                                        </template>
+                                            label="Valor máximo"
+                                            class="text-right mw"
+                                            single-line
+                                            hide-details
+                                        ></v-text-field>
                                     </template>
-                                </v-select> -->
+                                </v-select>
                             </v-col>
                             <v-divider vertical />
                             <v-col cols="5" xs="12" md="5" lg="5" class="ml-4">
@@ -109,6 +77,13 @@
                                     Mês
                                     <span style="color: red"> * </span>
                                 </v-label>
+                                <v-select
+                                    :items="months"
+                                    v-model="selectedMonth"
+                                    item-text="name"
+                                    item-value="value"
+                                    label="Escolha o mês do planejamento"
+                                ></v-select>
                             </v-col>
                         </v-row>
                         <v-divider />
@@ -145,17 +120,76 @@ export default {
                 title: "",
                 text: ""
             },
+            months: [
+                {
+                    name: "Janeiro",
+                    value: 1
+                },
+                {
+                    name: "Fevereiro",
+                    value: 2
+                },
+                {
+                    name: "Março",
+                    value: 3
+                },
+                {
+                    name: "Abril",
+                    value: 4
+                },
+                {
+                    name: "Maio",
+                    value: 5
+                },
+                {
+                    name: "Junho",
+                    value: 6
+                },
+                {
+                    name: "Julho",
+                    value: 7
+                },
+                {
+                    name: "Agosto",
+                    value: 8
+                },
+                {
+                    name: "Setembro",
+                    value: 9
+                },
+                {
+                    name: "Outubro",
+                    value: 10
+                },
+                {
+                    name: "Novembro",
+                    value: 11
+                },
+                {
+                    name: "Dezembro",
+                    value: 12
+                }
+            ],
+            selectedMonth: null,
             date: false,
             categoriaDespesa: [],
             open: true,
             planejamento: {
                 descricao: "",
                 alertaPorcentagem: null,
-                receitaTotal: null,
                 metaGastos: null,
                 dataInicio: "",
                 dataFim: "",
-                categorias: []
+                categorias: [
+                    {
+                        planejamentoCategoriaPK: {
+                            categoriaDespesa: {
+                                id: null
+                            }
+                        },
+                        valorMaximoGasto: null
+                    }
+                ]
             }
         };
     },
@@ -178,6 +212,25 @@ export default {
     },
     methods: {
         addCategory(id) {
+            if (this.id == null) {
+                if (id == null) {
+                    this.$router.push({ name: "PlanCategoriaDespesa" });
+                } else {
+                    this.$router.push({
+                        name: "PlanEditCategoriaDespesa",
+                        params: { idCat: id }
+                    });
+                }
+            } else {
+                if (id == null) {
+                    this.$router.push({ name: "EditingPlanCategoriaDespesa" });
+                } else {
+                    this.$router.push({
+                        name: "EditingPlanEditCategoriaDespesa",
+                        params: { idCat: id }
+                    });
+                }
+            }
             if (id == null) {
                 this.$router.push({ name: "CategoriaDespesa" });
             } else {
@@ -218,5 +271,8 @@ export default {
 <style scoped>
 .divider {
     width: 100;
+}
+.mw {
+    max-width: 200px;
 }
 </style>

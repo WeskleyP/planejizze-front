@@ -62,6 +62,12 @@
                                 </v-btn>
                             </v-toolbar>
                         </template>
+                        <template v-slot:[`item.status`]="{ item }">
+                            {{ item.status }}
+                            <v-icon small class="mr-2" @click="editLogs(logs)">
+                                mdi-pencil
+                            </v-icon>
+                        </template>
                         <template v-slot:[`item.actions`]="{ item }">
                             <v-icon small class="mr-2" @click="editItem(item)">
                                 mdi-pencil
@@ -287,7 +293,8 @@ export default {
                 { text: "Status", value: "status" },
                 { text: "Opções", value: "actions" }
             ],
-            despesas: []
+            despesas: [],
+            logs: []
         };
     },
     created() {
@@ -299,6 +306,9 @@ export default {
         this.fillBarChart();
     },
     methods: {
+        editLogs(logs) {
+            console.log(logs);
+        },
         openOrCloseRecebimentoModal() {
             this.pagamentoModal = !this.pagamentoModal;
         },
@@ -382,25 +392,31 @@ export default {
                                               : b.dataPagamentoExperada,
                                       ""
                                   ),
-                        status:
-                            res.tipoPagamento.type == "pagamentoComCartao"
-                                ? res.tipoPagamento.tipoPagamentoCartaoParcelas.reduce(
-                                      (a, b) =>
-                                          a.dataPagamentoExperada >=
-                                          b.dataPagamentoExperada
-                                              ? a.statusDespesa
-                                              : b.statusDespesa,
-                                      ""
-                                  )
-                                : res.tipoPagamento.tipoPagamentoMoedaLogs.reduce(
-                                      (a, b) =>
-                                          a.dataPagamentoExperada >=
-                                          b.dataPagamentoExperada
-                                              ? a.statusDespesa
-                                              : b.statusDespesa,
-                                      ""
-                                  ),
+                        status: (res.tipoPagamento.type == "pagamentoComCartao"
+                            ? res.tipoPagamento.tipoPagamentoCartaoParcelas.reduce(
+                                  (a, b) =>
+                                      a.dataPagamentoExperada >=
+                                      b.dataPagamentoExperada
+                                          ? a.statusDespesa
+                                          : b.statusDespesa,
+                                  ""
+                              )
+                            : res.tipoPagamento.tipoPagamentoMoedaLogs.reduce(
+                                  (a, b) =>
+                                      a.dataPagamentoExperada >=
+                                      b.dataPagamentoExperada
+                                          ? a.statusDespesa
+                                          : b.statusDespesa,
+                                  ""
+                              )
+                        ).replace("_", " "),
                         repetir: res.repetir
+                    };
+                });
+                this.logs = resp.content.map(r => {
+                    return {
+                        id: r.id,
+                        log: r.tipoPagamento
                     };
                 });
             });

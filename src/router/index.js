@@ -176,7 +176,7 @@ const routes = [
                 children: [
                     {
                         path: "categoria-receita",
-                        name: "CategoriaReceita",
+                        name: "EditingCategoriaReceita",
                         component: () =>
                             import(
                                 /* webpackChunkName: "internal" */ "../components/receita/categoria/CategoriaReceita.vue"
@@ -189,7 +189,7 @@ const routes = [
                     },
                     {
                         path: ":idCat/edit-categoria-receita",
-                        name: "EditCategoriaReceita",
+                        name: "EditingEditCategoriaReceita",
                         props: true,
                         meta: {
                             permission: {
@@ -206,7 +206,7 @@ const routes = [
                     },
                     {
                         path: "banco",
-                        name: "Banco",
+                        name: "EditingBanco",
                         component: () =>
                             import(
                                 /* webpackChunkName: "internal" */ "../components/receita/banco/Banco.vue"
@@ -219,7 +219,7 @@ const routes = [
                     },
                     {
                         path: ":idCat/edit-banco",
-                        name: "EditBanco",
+                        name: "EditingEditBanco",
                         props: true,
                         meta: {
                             permission: {
@@ -280,7 +280,7 @@ const routes = [
                 children: [
                     {
                         path: "categoria-despesa",
-                        name: "CategoriaDespesa",
+                        name: "PlanCategoriaDespesa",
                         component: () =>
                             import(
                                 /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
@@ -293,7 +293,7 @@ const routes = [
                     },
                     {
                         path: ":idCat/edit-categoria-despesa",
-                        name: "EditCategoriaDespesa",
+                        name: "PlanEditCategoriaDespesa",
                         props: true,
                         meta: {
                             permission: {
@@ -326,7 +326,7 @@ const routes = [
                 children: [
                     {
                         path: "categoria-despesa",
-                        name: "CategoriaDespesa",
+                        name: "EditingPlanCategoriaDespesa",
                         component: () =>
                             import(
                                 /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
@@ -339,7 +339,7 @@ const routes = [
                     },
                     {
                         path: ":idCat/edit-categoria-despesa",
-                        name: "EditCategoriaDespesa",
+                        name: "EditingPlanEditCategoriaDespesa",
                         props: true,
                         meta: {
                             permission: {
@@ -369,7 +369,23 @@ const routes = [
             permission: {
                 read: true
             }
-        }
+        },
+        children: [
+            {
+                path: "role-info",
+                name: "RoleList",
+                props: true,
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/admin/RoleList.vue"
+                    )
+            }
+        ]
     },
     {
         path: "/relatorio",
@@ -494,7 +510,7 @@ const routes = [
                 children: [
                     {
                         path: "categoria-despesa",
-                        name: "CategoriaDespesa",
+                        name: "EditingCategoriaDespesa",
                         component: () =>
                             import(
                                 /* webpackChunkName: "internal" */ "../components/despesa/categoria/CategoriaDespesa.vue"
@@ -507,7 +523,7 @@ const routes = [
                     },
                     {
                         path: ":idCat/edit-categoria-despesa",
-                        name: "EditCategoriaDespesa",
+                        name: "EditingEditCategoriaDespesa",
                         props: true,
                         meta: {
                             permission: {
@@ -524,7 +540,7 @@ const routes = [
                     },
                     {
                         path: "cartao",
-                        name: "Cartao",
+                        name: "EditingCartao",
                         component: () =>
                             import(
                                 /* webpackChunkName: "internal" */ "../components/despesa/cartao/Cartao.vue"
@@ -537,7 +553,7 @@ const routes = [
                     },
                     {
                         path: ":idCat/edit-cartao",
-                        name: "EditCartao",
+                        name: "EditingEditCartao",
                         props: true,
                         meta: {
                             permission: {

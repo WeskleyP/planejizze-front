@@ -15,8 +15,14 @@
                                 class="align wid ma-5"
                                 width="330px"
                                 :color="colors[i]"
+                                @click="seePermissions(role)"
                             >
-                                {{ role.nome }}
+                                <v-card-title class="justify-center">
+                                    <span
+                                        class="headline black--text text-h4"
+                                        >{{ role.nome }}</span
+                                    >
+                                </v-card-title>
                             </v-card>
                         </v-slide-item>
                     </v-slide-group>
@@ -51,21 +57,16 @@
                             ></v-text-field>
                         </v-toolbar>
                     </template>
-                    <!-- TODO mudar isso aqui-->
-                    <template v-slot:[`item.repetir`]="{ item }">
+                    <template v-slot:[`item.roles`]="{ item }">
                         <div
-                            :class="item.repetir ? 'purple--text' : 'red--text'"
+                            v-for="(value, key) in item.roles"
+                            :key="key"
+                            :style="{
+                                background: colors[key > 2 ? 0 : key]
+                            }"
                         >
-                            {{ item.repetir ? "Sim" : "Não" }}
+                            {{ value.nome }}
                         </div>
-                    </template>
-                    <template v-slot:[`item.actions`]="{ item }">
-                        <v-icon small class="mr-2" @click="editItem(item)">
-                            mdi-pencil
-                        </v-icon>
-                        <v-icon small @click="deleteItem(item)">
-                            mdi-delete
-                        </v-icon>
                     </template>
                 </v-data-table>
             </v-col>
@@ -96,6 +97,7 @@
 
 <script>
 import RoleService from "../services/RoleService";
+import UsuarioService from "../services/UsuarioService";
 export default {
     data() {
         return {
@@ -114,8 +116,7 @@ export default {
                     text: "Funções",
                     value: "roles"
                 },
-                { text: "E-mail", value: "email" },
-                { text: "Opções", value: "actions" }
+                { text: "E-mail", value: "email" }
             ],
             barChart: {
                 series: [
@@ -132,11 +133,6 @@ export default {
                             show: false
                         }
                     },
-                    plotOptions: {
-                        bar: {
-                            horizontal: true
-                        }
-                    },
                     dataLabels: {
                         enabled: false
                     },
@@ -149,12 +145,54 @@ export default {
     },
     created() {
         this.findAllRoles();
+        this.findAllUsers();
+        this.userCountByRole();
     },
     methods: {
         findAllRoles() {
             RoleService.findAll()
                 .then(res => {
                     this.roles = res;
+                })
+                .catch(e => console.error(e));
+        },
+        findAllUsers() {
+            UsuarioService.findAll()
+                .then(res => {
+                    console.log("users", res);
+                    this.users = res;
+                })
+                .catch(e => console.error(e));
+        },
+        seePermissions(role) {
+            this.$router.push({
+                name: "RoleList",
+                params: { role }
+            });
+        },
+        userCountByRole() {
+            UsuarioService.usersCountByRole()
+                .then(res => {
+                    res.map((r, index) => {
+                        let data = {
+                            name: r.roleName,
+                            data: [
+                                {
+                                    x: r.roleName,
+                                    y: r.countPerRole
+                                }
+                            ]
+                        };
+                        this.barChart.series.push(data);
+                        this.barChart.chartOptions.xaxis.categories.push(
+                            r.roleName
+                        );
+                        this.barChart.chartOptions.colors.push(
+                            this.colors[index > 2 ? 0 : index]
+                        );
+                    });
+                    this.barChart.chartOptions.colors.splice(0, 1);
+                    this.barChart.series.splice(0, 1);
                 })
                 .catch(e => console.error(e));
         }

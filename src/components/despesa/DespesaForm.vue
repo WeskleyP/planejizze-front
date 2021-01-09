@@ -302,23 +302,45 @@ export default {
     },
     methods: {
         addCategory(id) {
-            if (id == null) {
-                this.$router.push({ name: "CategoriaDespesa" });
+            if (this.id == null) {
+                if (id == null) {
+                    this.$router.push({ name: "CategoriaDespesa" });
+                } else {
+                    this.$router.push({
+                        name: "EditCategoriaDespesa",
+                        params: { idCat: id }
+                    });
+                }
             } else {
-                this.$router.push({
-                    name: "EditCategoriaDespesa",
-                    params: { idCat: id }
-                });
+                if (id == null) {
+                    this.$router.push({ name: "EditingCategoriaDespesa" });
+                } else {
+                    this.$router.push({
+                        name: "EditingEditCategoriaDespesa",
+                        params: { idCat: id }
+                    });
+                }
             }
         },
         addCartao(id) {
-            if (id == null) {
-                this.$router.push({ name: "Cartao" });
+            if (this.id == null) {
+                if (id == null) {
+                    this.$router.push({ name: "Cartao" });
+                } else {
+                    this.$router.push({
+                        name: "EditCartao",
+                        params: { idCat: id }
+                    });
+                }
             } else {
-                this.$router.push({
-                    name: "EditCartao",
-                    params: { idCat: id }
-                });
+                if (id == null) {
+                    this.$router.push({ name: "EditingCartao" });
+                } else {
+                    this.$router.push({
+                        name: "EditingEditCartao",
+                        params: { idCat: id }
+                    });
+                }
             }
         },
         findCategoriasDespesas() {

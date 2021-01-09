@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar app color="primary" absolute>
+    <v-app-bar app color="primary" absolute class="st">
         <v-btn icon @click="setDrawer(!drawer)">
             <v-icon color="white">mdi-menu</v-icon>
         </v-btn>

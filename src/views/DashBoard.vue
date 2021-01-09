@@ -85,7 +85,7 @@
                     <apexchart
                         class="chartPos"
                         height="100%"
-                        width="380"
+                        width="400"
                         type="bar"
                         :options="barData.chartOptions"
                         :series="barData.series"
@@ -106,7 +106,7 @@
                     <apexchart
                         class="chartPos"
                         width="380"
-                        height="100%"
+                        height="450"
                         type="bar"
                         :options="lineData.chartOptions"
                         :series="lineData.series"
@@ -367,26 +367,37 @@ export default {
             };
             DespesaService.dashboard(this.selectedDay2)
                 .then(res => {
-                    res.map(r => {
-                        let data = {
-                            name: r.categoriaDespesa.nome,
-                            data: [
-                                {
-                                    x: r.categoriaDespesa.nome,
-                                    y: r.valor
-                                }
-                            ]
-                        };
-                        this.barData.series.push(data);
-                        this.barData.chartOptions.xaxis.categories.push(
-                            r.categoriaDespesa.nome
-                        );
-                        this.barData.chartOptions.colors.push(
-                            r.categoriaDespesa.cor
-                        );
-                    });
-                    this.barData.chartOptions.colors.splice(0, 1);
-                    this.barData.series.splice(0, 1);
+                    if (res.length > 0) {
+                        res = res.reduce((r, a) => {
+                            return {
+                                categoriaDespesa: {
+                                    nome: r.categoriaDespesa.nome,
+                                    cor: r.categoriaDespesa.cor
+                                },
+                                valor: r.valor + a.valor
+                            };
+                        });
+                        Array(res).map(r => {
+                            let data = {
+                                name: r.categoriaDespesa.nome,
+                                data: [
+                                    {
+                                        x: r.categoriaDespesa.nome,
+                                        y: r.valor
+                                    }
+                                ]
+                            };
+                            this.barData.series.push(data);
+                            this.barData.chartOptions.xaxis.categories.push(
+                                r.categoriaDespesa.nome
+                            );
+                            this.barData.chartOptions.colors.push(
+                                r.categoriaDespesa.cor
+                            );
+                        });
+                        this.barData.chartOptions.colors.splice(0, 1);
+                        this.barData.series.splice(0, 1);
+                    }
                 })
                 .catch(e => {
                     this.alert = {

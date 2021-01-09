@@ -149,6 +149,14 @@
                                     ></v-select>
                                 </v-col>
                             </v-row>
+                            <v-row>
+                                <v-col cols="12">
+                                    <span
+                                        >Meta de Gastos total no mês:
+                                        {{ metaPlan }}</span
+                                    >
+                                </v-col>
+                            </v-row>
                         </v-sheet>
                         <apexchart
                             width="100%"
@@ -239,7 +247,8 @@ export default {
                 { text: "Opções", value: "actions" }
             ],
             planejamentos: [],
-            planDropdown: []
+            planDropdown: [],
+            metaPlan: null
         };
     },
     created() {
@@ -343,28 +352,44 @@ export default {
         findSecondChart() {
             PlanejamentoService.findPlanejamentoPrevistoDespesaReal(this.pd)
                 .then(res => {
-                    let data = {
-                        name: "Meta de Gastos",
-                        data: [
+                    this.barChart = {
+                        series: [
                             {
-                                x: "Meta de Gastos",
-                                y: res.metaGastos
+                                data: []
                             }
-                        ]
+                        ],
+                        chartOptions: {
+                            xaxis: {
+                                categories: []
+                            },
+                            labels: [],
+                            colors: [],
+                            chart: {
+                                toolbar: {
+                                    show: false
+                                }
+                            }
+                        }
                     };
-                    let anotherData = {
-                        name: "Gastos por categorias",
-                        data: []
-                    };
-                    res.planejamentoPrevistoRealCategorias.map(e => {
-                        anotherData.data.push({
-                            x: e.categoriaNome,
-                            y: e.categoriaCor
-                        });
+                    this.metaPlan = res.metaGastos;
+                    res.planejamentoPrevistoRealCategorias.map(r => {
+                        let data = {
+                            name: r.categoriaNome,
+                            data: [
+                                {
+                                    x: r.categoriaNome,
+                                    y: r.valorGastoAtual || 0
+                                }
+                            ]
+                        };
+                        this.barChart.series.push(data);
+                        this.barChart.chartOptions.xaxis.categories.push(
+                            r.categoriaNome
+                        );
+                        this.barChart.chartOptions.colors.push(r.categoriaCor);
                     });
-                    this.barChart.series.push(data);
-                    this.barChart.series.push(anotherData);
                     this.barChart.series.splice(0, 1);
+                    // this.barChart.chartOptions.colors.splice(0, 1);
                     console.log(this.barChart);
                 })
                 .catch(e => console.error(e));

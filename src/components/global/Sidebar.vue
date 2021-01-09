@@ -74,7 +74,7 @@ export default {
                 { route: "Despesa", title: "Despesas", icon: "mdi-briefcase" },
                 {
                     route: "Planejamento",
-                    title: "Planejamento",
+                    title: "Planejamentos",
                     icon: "mdi-lightbulb-outline"
                 },
                 {

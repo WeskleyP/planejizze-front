@@ -61,6 +61,12 @@
                                 </v-btn>
                             </v-toolbar>
                         </template>
+                        <template v-slot:[`item.status`]="{ item }">
+                            {{ item.status }}
+                            <v-icon small class="mr-2" @click="editLogs(logs)">
+                                mdi-pencil
+                            </v-icon>
+                        </template>
                         <template v-slot:[`item.repetir`]="{ item }">
                             <div
                                 :class="
@@ -298,7 +304,8 @@ export default {
                 { text: "Repete-se?", value: "repetir" },
                 { text: "Opções", value: "actions" }
             ],
-            receitas: []
+            receitas: [],
+            logs: []
         };
     },
     created() {
@@ -310,6 +317,9 @@ export default {
         this.fillBarChart();
     },
     methods: {
+        editLogs(logs) {
+            console.log(logs);
+        },
         openOrCloseRecebimentoModal() {
             this.recebimentoModal = !this.recebimentoModal;
         },
@@ -416,31 +426,34 @@ export default {
                                                   : b.dataRecebimentoExperada,
                                           ""
                                       ),
-                            status:
-                                res.tipoRecebimento.type ===
-                                "recebimentoComBanco"
-                                    ? res.tipoRecebimento.tipoRecebimentoBancoLogs.reduce(
-                                          (a, b) =>
-                                              a.dataRecebimentoExperada >=
-                                              b.dataRecebimentoExperada
-                                                  ? a.statusReceita
-                                                  : b.statusReceita,
-                                          ""
-                                      )
-                                    : res.tipoRecebimento.tipoRecebimentoMoedaLogs.reduce(
-                                          (a, b) =>
-                                              a.dataRecebimentoExperada >=
-                                              b.dataRecebimentoExperada
-                                                  ? a.statusReceita
-                                                  : b.statusReceita,
-                                          ""
-                                      ),
+                            status: (res.tipoRecebimento.type ===
+                            "recebimentoComBanco"
+                                ? res.tipoRecebimento.tipoRecebimentoBancoLogs.reduce(
+                                      (a, b) =>
+                                          a.dataRecebimentoExperada >=
+                                          b.dataRecebimentoExperada
+                                              ? a.statusReceita
+                                              : b.statusReceita,
+                                      ""
+                                  )
+                                : res.tipoRecebimento.tipoRecebimentoMoedaLogs.reduce(
+                                      (a, b) =>
+                                          a.dataRecebimentoExperada >=
+                                          b.dataRecebimentoExperada
+                                              ? a.statusReceita
+                                              : b.statusReceita,
+                                      ""
+                                  )
+                            ).replace("_", " "),
                             repetir: res.repetir
                         };
                     });
-                    this.receitas.forEach(e =>
-                        e.status.toString().replace("_", " ")
-                    );
+                    this.logs = resp.content.map(r => {
+                        return {
+                            id: r.id,
+                            log: r.tipoRecebimento
+                        };
+                    });
                 })
                 .catch(e => {
                     this.alert = {

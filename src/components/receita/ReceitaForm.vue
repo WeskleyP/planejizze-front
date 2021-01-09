@@ -302,23 +302,45 @@ export default {
     },
     methods: {
         addCategory(id) {
-            if (id == null) {
-                this.$router.push({ name: "CategoriaReceita" });
+            if (this.id == null) {
+                if (id == null) {
+                    this.$router.push({ name: "CategoriaReceita" });
+                } else {
+                    this.$router.push({
+                        name: "EditCategoriaReceita",
+                        params: { idCat: id }
+                    });
+                }
             } else {
-                this.$router.push({
-                    name: "EditCategoriaReceita",
-                    params: { idCat: id }
-                });
+                if (id == null) {
+                    this.$router.push({ name: "EditingCategoriaReceita" });
+                } else {
+                    this.$router.push({
+                        name: "EditingEditCategoriaReceita",
+                        params: { idCat: id }
+                    });
+                }
             }
         },
         addBanco(id) {
-            if (id == null) {
-                this.$router.push({ name: "Banco" });
+            if (this.id == null) {
+                if (id == null) {
+                    this.$router.push({ name: "Banco" });
+                } else {
+                    this.$router.push({
+                        name: "EditBanco",
+                        params: { idCat: id }
+                    });
+                }
             } else {
-                this.$router.push({
-                    name: "EditBanco",
-                    params: { idCat: id }
-                });
+                if (id == null) {
+                    this.$router.push({ name: "EditingBanco" });
+                } else {
+                    this.$router.push({
+                        name: "EditingEditBanco",
+                        params: { idCat: id }
+                    });
+                }
             }
         },
         findCategoriasReceitas() {
