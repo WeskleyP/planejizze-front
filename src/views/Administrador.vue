@@ -58,7 +58,7 @@
                         </v-toolbar>
                     </template>
                     <template v-slot:[`item.roles`]="{ item }">
-                        <div
+                        <v-chip
                             v-for="(value, key) in item.roles"
                             :key="key"
                             :style="{
@@ -66,7 +66,10 @@
                             }"
                         >
                             {{ value.nome }}
-                        </div>
+                        </v-chip>
+                        <v-icon small class="mr-2" @click="editRoles(item)">
+                            mdi-pencil
+                        </v-icon>
                     </template>
                 </v-data-table>
             </v-col>
@@ -101,6 +104,7 @@ import UsuarioService from "../services/UsuarioService";
 export default {
     data() {
         return {
+            selected: [],
             search: "",
             colors: ["#0ACF83", "#8000FF", "#FF0742"],
             headers: [
@@ -143,12 +147,23 @@ export default {
             roles: []
         };
     },
-    created() {
+    mounted() {
         this.findAllRoles();
         this.findAllUsers();
         this.userCountByRole();
     },
+    beforeRouteUpdate(_to, _from, next) {
+        this.findAllUsers();
+        this.userCountByRole();
+        next();
+    },
     methods: {
+        editRoles(item) {
+            this.$router.push({
+                name: "ChangeRoles",
+                params: { item }
+            });
+        },
         findAllRoles() {
             RoleService.findAll()
                 .then(res => {
@@ -171,6 +186,27 @@ export default {
             });
         },
         userCountByRole() {
+            this.barChart = {
+                series: [
+                    {
+                        data: []
+                    }
+                ],
+                chartOptions: {
+                    xaxis: {
+                        categories: []
+                    },
+                    chart: {
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    colors: []
+                }
+            };
             UsuarioService.usersCountByRole()
                 .then(res => {
                     res.map((r, index) => {

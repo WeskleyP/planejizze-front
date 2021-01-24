@@ -64,7 +64,11 @@
                         </template>
                         <template v-slot:[`item.status`]="{ item }">
                             {{ item.status }}
-                            <v-icon small class="mr-2" @click="editLogs(logs)">
+                            <v-icon
+                                small
+                                class="mr-2"
+                                @click="editLogs(item.id)"
+                            >
                                 mdi-pencil
                             </v-icon>
                         </template>
@@ -306,8 +310,9 @@ export default {
         this.fillBarChart();
     },
     methods: {
-        editLogs(logs) {
-            console.log(logs);
+        editLogs(id) {
+            let logs = this.logs.find(e => e.id === id);
+            this.$router.push({ name: "LogsEditDespesa", params: { logs } });
         },
         openOrCloseRecebimentoModal() {
             this.pagamentoModal = !this.pagamentoModal;
@@ -324,8 +329,8 @@ export default {
                     this.alert = {
                         open: true,
                         color: "success",
-                        title: "Despesas excluida com sucesso",
-                        text: ""
+                        title: "Sucesso",
+                        text: "Despesas excluida com sucesso"
                     };
                 })
                 .catch(e => {

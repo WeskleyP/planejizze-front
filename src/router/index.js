@@ -78,6 +78,23 @@ const routes = [
         },
         children: [
             {
+                path: "edit-status",
+                name: "LogsEdit",
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                props: true,
+                beforeEnter(_to, _from, next) {
+                    next();
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/receita/LogsEdit.vue"
+                    )
+            },
+            {
                 path: "new-receita",
                 name: "NewReceita",
                 meta: {
@@ -384,6 +401,20 @@ const routes = [
                     import(
                         /* webpackChunkName: "internal" */ "../components/admin/RoleList.vue"
                     )
+            },
+            {
+                path: "role-change",
+                name: "ChangeRoles",
+                props: true,
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/admin/ChangeRole.vue"
+                    )
             }
         ]
     },
@@ -411,6 +442,23 @@ const routes = [
             }
         },
         children: [
+            {
+                path: "edit-status",
+                name: "LogsEditDespesa",
+                meta: {
+                    permission: {
+                        read: true
+                    }
+                },
+                props: true,
+                beforeEnter(_to, _from, next) {
+                    next();
+                },
+                component: () =>
+                    import(
+                        /* webpackChunkName: "internal" */ "../components/despesa/LogsEdit.vue"
+                    )
+            },
             {
                 path: "new-despesa",
                 name: "NewDespesa",
