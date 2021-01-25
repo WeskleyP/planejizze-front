@@ -581,19 +581,27 @@ export default {
         updateParcelas(parcelas, diaPagamento) {
             let finalParcelas = [];
             diaPagamento = moment(diaPagamento, "YYYY/MM/DD").format("D");
-            console.log(diaPagamento);
             for (let index = 0; index < parcelas.length; index++) {
-                let d = moment(parcelas[index].dataPagamentoExperada)
-                    .set("date", diaPagamento)
-                    .format("DD/MM/YYYY");
-                console.log(moment(d).get("dates"));
+                let year = moment(
+                    parcelas[index].dataPagamentoExperada,
+                    "DD/MM/YYYY"
+                ).year();
+                let month =
+                    moment(
+                        parcelas[index].dataPagamentoExperada,
+                        "DD/MM/YYYY"
+                    ).month() + 1;
+                let finalDate = moment(
+                    `${diaPagamento}/${month}/${year}`,
+                    "DD/MM/YYYY"
+                ).format("DD/MM/YYYY");
                 finalParcelas.push({
                     valorParcela: parcelas[index].valorParcela,
                     statusDespesa: parcelas[index].statusDespesa,
                     numeroParcela: parcelas[index].numeroParcela,
                     dataPagamentoExperada:
                         parcelas[index].statusDespesa != "PAGO"
-                            ? d
+                            ? finalDate
                             : parcelas[index].dataPagamentoExperada,
                     dataRecebimentoReal: null
                 });
@@ -601,7 +609,6 @@ export default {
             return finalParcelas;
         },
         salvar() {
-            console.log(this.despesa);
             let despesaASalvar = {};
             if (this.id != null) {
                 if (this.despesa.tipoPagamento.type == "pagamentoComCartao") {
@@ -629,18 +636,6 @@ export default {
                                 this.despesa.categoriaDespesa
                         }
                     };
-                    Array.from(
-                        despesaASalvar.tipoPagamento.tipoPagamentoCartaoParcelas
-                    )
-                        .filter(e => e.statusDespesa != "PAGO")
-                        .forEach(
-                            e =>
-                                (e.dataPagamentoExperada = this.formatTextDate(
-                                    this.despesa.tipoPagamento.diaPagamento,
-                                    "DD/MM/YYYY",
-                                    "YYYY-MM-DD"
-                                ))
-                        );
                 } else {
                     despesaASalvar = {
                         id: this.despesa.id,
@@ -676,25 +671,24 @@ export default {
                                 ))
                         );
                 }
-                console.log("despesa update", despesaASalvar);
-                // DespesaService.update(despesaASalvar)
-                //     .then(() => {
-                //         this.alert = {
-                //             open: true,
-                //             color: "success",
-                //             title: "Sucesso",
-                //             text: "Despesa salva com sucesso"
-                //         };
-                //         this.close();
-                //     })
-                //     .catch(e => {
-                //         this.alert = {
-                //             open: true,
-                //             color: "error",
-                //             title: "Erro ao salvar despesa",
-                //             text: e.message
-                //         };
-                //     });
+                DespesaService.update(despesaASalvar)
+                    .then(() => {
+                        this.alert = {
+                            open: true,
+                            color: "success",
+                            title: "Sucesso",
+                            text: "Despesa salva com sucesso"
+                        };
+                        this.close();
+                    })
+                    .catch(e => {
+                        this.alert = {
+                            open: true,
+                            color: "error",
+                            title: "Erro ao salvar despesa",
+                            text: e.message
+                        };
+                    });
             } else {
                 if (this.despesa.tipoPagamento.type == "pagamentoComCartao") {
                     despesaASalvar = {

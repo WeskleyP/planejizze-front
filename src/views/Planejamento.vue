@@ -80,6 +80,7 @@
                     <v-data-table
                         :headers="headers"
                         :items="planejamentos"
+                        :search="search"
                         :items-per-page="5"
                         class="elevation-1 fw"
                         no-data-text="Não foi encontrado nenhum dado!"
@@ -92,6 +93,7 @@
                                     append-icon="mdi-magnify"
                                     label="Pesquisar"
                                     single-line
+                                    outlined
                                     hide-details
                                 ></v-text-field>
                                 <v-btn
@@ -342,9 +344,9 @@ export default {
                 .catch(e => console.error(e));
         },
         fillData() {
-            PlanejamentoService.findAllPaginated(0, 5)
+            PlanejamentoService.findAll()
                 .then(res => {
-                    this.planejamentos = res.content;
+                    this.planejamentos = res;
                     this.findSecondChart();
                 })
                 .catch(e => console.error(e));

@@ -42,6 +42,7 @@
                     :headers="headers"
                     :items="users"
                     :items-per-page="5"
+                    :search="search"
                     class="elevation-1 fw"
                     no-data-text="Não foi encontrado nenhum dado!"
                     no-results-text="Não foi encontrado nenhum dado!"
@@ -52,6 +53,7 @@
                                 v-model="search"
                                 append-icon="mdi-magnify"
                                 label="Pesquisar"
+                                outlined
                                 single-line
                                 hide-details
                             ></v-text-field>

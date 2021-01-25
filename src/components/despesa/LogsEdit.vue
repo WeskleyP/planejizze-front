@@ -119,7 +119,6 @@ export default {
             : Array.from(this.logs.log.tipoPagamentoCartaoParcelas).sort(
                   (a, b) => a.dataPagamentoExperada >= b.dataPagamentoExperada
               );
-        console.log(this.logs);
     },
     methods: {
         close() {

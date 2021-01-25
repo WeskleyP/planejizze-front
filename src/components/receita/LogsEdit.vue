@@ -122,7 +122,6 @@ export default {
                   (a, b) =>
                       a.dataRecebimentoExperada >= b.dataRecebimentoExperada
               );
-        console.log(this.logs);
         // _.orderBy(
         //     this.logs,
         //     this.logs.log.type == "recebimentoComMoeda"

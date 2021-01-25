@@ -39,6 +39,8 @@
                         :headers="headers"
                         :items="receitas"
                         :items-per-page="5"
+                        :search="search"
+                        locale="pt-br"
                         class="elevation-1 fw"
                         no-data-text="Não foi encontrado nenhum dado!"
                         no-results-text="Não foi encontrado nenhum dado!"
@@ -50,6 +52,7 @@
                                     append-icon="mdi-magnify"
                                     label="Pesquisar"
                                     single-line
+                                    outlined
                                     hide-details
                                 ></v-text-field>
                                 <v-btn
@@ -410,9 +413,9 @@ export default {
                 });
         },
         filTable() {
-            ReceitaService.findAllPaginated(0, 5)
+            ReceitaService.findAll()
                 .then(resp => {
-                    this.receitas = resp.content.map(res => {
+                    this.receitas = resp.map(res => {
                         return {
                             id: res.id,
                             descricao: res.descricao,
@@ -459,7 +462,7 @@ export default {
                             repetir: res.repetir
                         };
                     });
-                    this.logs = resp.content.map(r => {
+                    this.logs = resp.map(r => {
                         return {
                             id: r.id,
                             log: r.tipoRecebimento

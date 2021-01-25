@@ -12,6 +12,7 @@
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "date-fns": "^2.16.1",
+    "downloadjs": "^1.4.7",
     "hooper": "^0.3.4",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",

@@ -439,7 +439,6 @@ export default {
                                 valor: r.valor + a.valor
                             };
                         });
-                        console.log(res);
                         Array(res).map(r => {
                             let data = {
                                 name: r.categoriaDespesa.nome,

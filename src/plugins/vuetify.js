@@ -1,9 +1,14 @@
 import Vue from "vue";
 import Vuetify from "vuetify/lib";
+import pt from "vuetify/src/locale/pt.ts";
 
 Vue.use(Vuetify);
 
 export default new Vuetify({
+    lang: {
+        locales: { pt },
+        current: pt
+    },
     theme: {
         themes: {
             light: {

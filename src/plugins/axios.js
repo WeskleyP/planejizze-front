@@ -7,7 +7,7 @@ const backendUrl = axios.create({
     baseURL: process.env.VUE_APP_PLANEJIZZE_API,
     headers: {
         "Content-type": "application/json",
-        Accept: "application/json"
+        Accept: "application/json, application/pdf, application/x-download"
     }
 });
 

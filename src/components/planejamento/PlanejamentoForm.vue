@@ -77,13 +77,35 @@
                                     Mês
                                     <span style="color: red"> * </span>
                                 </v-label>
-                                <v-select
-                                    :items="months"
-                                    v-model="selectedMonth"
-                                    item-text="name"
-                                    item-value="value"
-                                    label="Escolha o mês do planejamento"
-                                ></v-select>
+                                <v-menu
+                                    ref="date"
+                                    v-model="date"
+                                    :close-on-content-click="false"
+                                    transition="scale-transition"
+                                    offset-y
+                                    min-width="290px"
+                                >
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-text-field
+                                            required
+                                            outlined
+                                            dense
+                                            readonly
+                                            :value="formatMonth(selectedMonth)"
+                                            v-on="on"
+                                            v-bind="attrs"
+                                            height="40px"
+                                        ></v-text-field>
+                                    </template>
+                                    <v-date-picker
+                                        v-model="selectedMonth"
+                                        no-title
+                                        type="month"
+                                        locale="pt-br"
+                                        scrollable
+                                        @input="date = false"
+                                    />
+                                </v-menu>
                             </v-col>
                         </v-row>
                         <v-divider />
@@ -260,6 +282,9 @@ export default {
         },
         formatTextDate(date) {
             return date ? moment(date).format("DD/MM/YYYY") : "";
+        },
+        formatMonth(month) {
+            return month ? moment(month).format("MM/YYYY") : "";
         },
         salvar() {
             console.log(this.planejamento);

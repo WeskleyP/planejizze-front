@@ -19,6 +19,12 @@ const routes = [
         }
     },
     {
+        path: "/report",
+        meta: {
+            public: true
+        }
+    },
+    {
         path: "/register",
         name: "Register",
         component: () =>
@@ -103,7 +109,6 @@ const routes = [
                     }
                 },
                 beforeEnter(_to, _from, next) {
-                    console.log("Testando antes de entrar");
                     next();
                 },
                 component: () =>
@@ -183,7 +188,6 @@ const routes = [
                     }
                 },
                 beforeEnter(_to, _from, next) {
-                    console.log("Testando antes de entrar");
                     next();
                 },
                 component: () =>
@@ -468,7 +472,6 @@ const routes = [
                     }
                 },
                 beforeEnter(_to, _from, next) {
-                    console.log("Testando antes de entrar");
                     next();
                 },
                 component: () =>
@@ -548,7 +551,6 @@ const routes = [
                     }
                 },
                 beforeEnter(_to, _from, next) {
-                    console.log("Testando antes de entrar");
                     next();
                 },
                 component: () =>

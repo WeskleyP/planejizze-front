@@ -40,6 +40,7 @@
                         :headers="headers"
                         :items="despesas"
                         :items-per-page="5"
+                        :search="search"
                         class="elevation-1 fw"
                         no-data-text="Não foi encontrado nenhum dado!"
                         no-results-text="Não foi encontrado nenhum dado!"
@@ -51,6 +52,7 @@
                                     append-icon="mdi-magnify"
                                     label="Pesquisar"
                                     single-line
+                                    outlined
                                     hide-details
                                 ></v-text-field>
                                 <v-btn
@@ -369,8 +371,8 @@ export default {
                 .catch(e => console.error(e.message));
         },
         filTable() {
-            DespesaService.findAllPaginated(0, 5).then(resp => {
-                this.despesas = resp.content.map(res => {
+            DespesaService.findAll().then(resp => {
+                this.despesas = resp.map(res => {
                     return {
                         id: res.id,
                         descricao: res.descricao,
@@ -415,7 +417,7 @@ export default {
                         repetir: res.repetir
                     };
                 });
-                this.logs = resp.content.map(r => {
+                this.logs = resp.map(r => {
                     return {
                         id: r.id,
                         log: r.tipoPagamento

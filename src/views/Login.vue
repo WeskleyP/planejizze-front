@@ -116,7 +116,7 @@ export default {
                     );
                     setTimeout(() => {
                         location.reload();
-                    }, 2000);
+                    }, 1000);
                 })
                 .catch(e => {
                     this.alert = {
