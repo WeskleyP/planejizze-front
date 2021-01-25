@@ -23,17 +23,22 @@
                 class="hovering ma-1 pl-3 menus bg-menus"
                 :to="item.route"
             >
-                <v-list-item-icon>
-                    <v-icon left size="24px" class="white--text text-center">{{
-                        item.icon
-                    }}</v-icon>
-                </v-list-item-icon>
+                <template v-if="item.permission">
+                    <v-list-item-icon>
+                        <v-icon
+                            left
+                            size="24px"
+                            class="white--text text-center"
+                            >{{ item.icon }}</v-icon
+                        >
+                    </v-list-item-icon>
 
-                <v-list-item-content>
-                    <v-list-item-title class="white--text text-left">{{
-                        item.title
-                    }}</v-list-item-title>
-                </v-list-item-content>
+                    <v-list-item-content>
+                        <v-list-item-title class="white--text text-left">{{
+                            item.title
+                        }}</v-list-item-title>
+                    </v-list-item-content>
+                </template>
             </v-list-item>
         </v-list>
         <template v-slot:append v-if="!premium">
@@ -60,35 +65,48 @@
 export default {
     data() {
         return {
-            items: [
-                {
-                    route: "Dashboard",
-                    title: "Dashboard",
-                    icon: "mdi-view-dashboard"
-                },
-                {
-                    route: "Receita",
-                    title: "Receitas",
-                    icon: "mdi-currency-usd"
-                },
-                { route: "Despesa", title: "Despesas", icon: "mdi-briefcase" },
-                {
-                    route: "Planejamento",
-                    title: "Planejamentos",
-                    icon: "mdi-lightbulb-outline"
-                },
-                {
-                    route: "Administrador",
-                    title: "Administrador",
-                    icon: "mdi-domain"
-                },
-                {
-                    route: "Relatorio",
-                    title: "Relatórios",
-                    icon: "mdi-chart-timeline-variant"
-                }
-            ]
+            items: []
         };
+    },
+    mounted() {
+        this.items = [
+            {
+                route: "Dashboard",
+                title: "Dashboard",
+                icon: "mdi-view-dashboard",
+                permission: true
+            },
+            {
+                route: "Receita",
+                title: "Receitas",
+                icon: "mdi-currency-usd",
+                permission: true
+            },
+            {
+                route: "Despesa",
+                title: "Despesas",
+                icon: "mdi-briefcase",
+                permission: true
+            },
+            {
+                route: "Planejamento",
+                title: "Planejamentos",
+                icon: "mdi-lightbulb-outline",
+                permission: true
+            },
+            {
+                route: "Administrador",
+                title: "Administrador",
+                icon: "mdi-domain",
+                permission: this.admin
+            },
+            {
+                route: "Relatorio",
+                title: "Relatórios",
+                icon: "mdi-chart-timeline-variant",
+                permission: this.premium
+            }
+        ].filter(e => e.permission);
     },
     computed: {
         drawer: {
@@ -102,10 +120,25 @@ export default {
         premium() {
             let premium = JSON.parse(localStorage.getItem("permissions"));
             return (
-                premium.report.read &&
-                premium.report.create &&
-                premium.report.update &&
-                premium.report.delete
+                (premium.report.read &&
+                    premium.report.create &&
+                    premium.report.update &&
+                    premium.report.delete) ||
+                true
+            );
+        },
+        admin() {
+            let admin = JSON.parse(localStorage.getItem("permissions"));
+            return (
+                (admin.role.read &&
+                    admin.role.create &&
+                    admin.role.update &&
+                    admin.role.delete &&
+                    admin.usuario.read &&
+                    admin.usuario.create &&
+                    admin.usuario.update &&
+                    admin.usuario.delete) ||
+                true
             );
         }
     }

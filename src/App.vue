@@ -1,7 +1,7 @@
 <template>
     <v-app>
-        <Header v-if="tokenExists" />
-        <Sidebar v-if="tokenExists" />
+        <Header v-if="tokenExists && permission" />
+        <Sidebar v-if="tokenExists && permission" />
         <v-main class="main">
             <router-view></router-view>
         </v-main>
@@ -17,6 +17,9 @@ export default {
     computed: {
         tokenExists() {
             return this.$store.state.token ? true : false;
+        },
+        permission() {
+            return this.$store.state.permission ? true : false;
         }
     }
 };

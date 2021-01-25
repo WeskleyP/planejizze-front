@@ -107,6 +107,7 @@ export default {
                 });
         },
         salvar() {
+            this.categoria.cor = this.categoria.cor.substring(0, 7);
             if (this.idCat || this.categoria.id != null) {
                 CategoriaReceitaService.update(this.categoria)
                     .then(() => {

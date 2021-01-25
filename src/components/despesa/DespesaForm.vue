@@ -28,21 +28,36 @@
                                     v-model="despesa.valor"
                                     class="mb-5"
                                     label="Valor"
+                                    type="number"
+                                    :disabled="
+                                        despesa.id &&
+                                            despesa.tipoPagamento.type ===
+                                                'pagamentoComCartao'
+                                    "
                                     single-line
                                     hide-details
                                 ></v-text-field>
-                                <v-label>
-                                    A despesa irá se repetir
-                                    <span style="color: red"> * </span>
-                                </v-label>
-                                <v-switch
-                                    v-model="despesa.repetir"
-                                    label="Repete-se?"
-                                ></v-switch>
+                                <template
+                                    v-if="
+                                        despesa.tipoPagamento.type !==
+                                            'pagamentoComCartao'
+                                    "
+                                >
+                                    <v-label>
+                                        A despesa irá será fixa
+                                        <span style="color: red"> * </span>
+                                    </v-label>
+                                    <v-switch
+                                        v-model="despesa.despesaFixa"
+                                        label="É fixa?"
+                                    ></v-switch>
+                                </template>
+
                                 <v-label>
                                     Categoria da despesa
                                     <span style="color: red"> * </span>
                                 </v-label>
+                                <div>{{ despesa.categoriaDespesa.id }}</div>
                                 <v-select
                                     :items="categoriaDespesa"
                                     v-model="despesa.categoriaDespesa"
@@ -67,11 +82,21 @@
                                         </template>
                                         <template v-else>
                                             <v-btn
+                                                v-if="
+                                                    despesa.categoriaDespesa >=
+                                                        30 ||
+                                                        despesa.categoriaDespesa
+                                                            .id >= 30
+                                                "
                                                 icon
                                                 @click="
                                                     addCategory(
                                                         despesa.categoriaDespesa
-                                                            .id
+                                                            .id == null
+                                                            ? despesa.categoriaDespesa
+                                                            : despesa
+                                                                  .categoriaDespesa
+                                                                  .id
                                                     )
                                                 "
                                             >
@@ -79,7 +104,20 @@
                                                     >mdi-pencil</v-icon
                                                 >
                                             </v-btn>
-                                            <v-btn icon>
+                                            <v-btn
+                                                v-if="
+                                                    despesa.categoriaDespesa >=
+                                                        30 ||
+                                                        despesa.categoriaDespesa
+                                                            .id >= 30
+                                                "
+                                                icon
+                                                @click="
+                                                    deleteItemCategoria(
+                                                        despesa.categoriaDespesa
+                                                    )
+                                                "
+                                            >
                                                 <v-icon class="purple--text"
                                                     >mdi-delete</v-icon
                                                 >
@@ -94,39 +132,17 @@
                                     Data de Pagamento
                                     <span style="color: red"> * </span>
                                 </v-label>
-                                <v-menu
-                                    ref="date"
-                                    v-model="date"
-                                    :close-on-content-click="false"
-                                    transition="scale-transition"
-                                    offset-y
-                                    min-width="290px"
-                                >
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-text-field
-                                            required
-                                            outlined
-                                            dense
-                                            readonly
-                                            :value="
-                                                formatTextDate(
-                                                    despesa.tipoPagamento
-                                                        .diaPagamento
-                                                )
-                                            "
-                                            v-bind="attrs"
-                                            v-on="on"
-                                        ></v-text-field>
-                                    </template>
-                                    <v-date-picker
-                                        v-model="
-                                            despesa.tipoPagamento.diaPagamento
-                                        "
-                                        no-title
-                                        scrollable
-                                        @input="date = false"
-                                    />
-                                </v-menu>
+                                <v-text-field
+                                    v-model="despesa.tipoPagamento.diaPagamento"
+                                    :value="
+                                        formatTextDate(
+                                            despesa.tipoPagamento.diaPagamento,
+                                            'YYYY-MM-DD'
+                                        )
+                                    "
+                                    type="date"
+                                    outlined
+                                ></v-text-field>
                                 <v-label>
                                     Descrição
                                     <span style="color: red"> * </span>
@@ -157,7 +173,7 @@
                                                 ></v-radio>
                                                 <v-radio
                                                     label="Dinheiro"
-                                                    value="pagamentoComMoeda"
+                                                    value="pagamentoComDinheiro"
                                                 ></v-radio>
                                             </v-radio-group>
                                         </v-col>
@@ -212,7 +228,16 @@
                                                                 >mdi-pencil</v-icon
                                                             >
                                                         </v-btn>
-                                                        <v-btn icon>
+                                                        <v-btn
+                                                            icon
+                                                            @click="
+                                                                deleteItemCartao(
+                                                                    despesa
+                                                                        .tipoPagamento
+                                                                        .cartao
+                                                                )
+                                                            "
+                                                        >
                                                             <v-icon
                                                                 class="purple--text"
                                                                 >mdi-delete</v-icon
@@ -221,6 +246,32 @@
                                                     </template>
                                                 </template>
                                             </v-select>
+                                            <div
+                                                v-if="
+                                                    despesa.tipoPagamento
+                                                        .type ===
+                                                        'pagamentoComCartao'
+                                                "
+                                            >
+                                                <v-label>
+                                                    Quantidade de parcelas
+                                                    <span style="color: red">
+                                                        *
+                                                    </span>
+                                                </v-label>
+                                                <v-text-field
+                                                    outlined
+                                                    v-model="
+                                                        despesa.tipoPagamento
+                                                            .quantidadeParcelas
+                                                    "
+                                                    class="mb-5"
+                                                    label="Descrição"
+                                                    single-line
+                                                    type="number"
+                                                    hide-details
+                                                ></v-text-field>
+                                            </div>
                                         </v-col>
                                     </v-row>
                                 </v-card>
@@ -239,6 +290,50 @@
                     </v-card-text>
                 </v-form>
             </v-card>
+            <v-dialog v-model="deleteCategoria" max-width="600px">
+                <v-card>
+                    <v-card-title class="headline"
+                        >Você realmente deseja excluir a
+                        categoria?</v-card-title
+                    >
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="primary"
+                            text
+                            @click="closeDeleteCategoria"
+                            >Cancelar</v-btn
+                        >
+                        <v-btn
+                            color="primary"
+                            text
+                            @click="deleteItemConfirmCategoria"
+                            >OK</v-btn
+                        >
+                        <v-spacer></v-spacer>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="deleteCartao" max-width="500px">
+                <v-card>
+                    <v-card-title class="headline"
+                        >Você realmente deseja excluir o cartão?</v-card-title
+                    >
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="closeDeleteCartao"
+                            >Cancelar</v-btn
+                        >
+                        <v-btn
+                            color="primary"
+                            text
+                            @click="deleteItemConfirmCartao"
+                            >OK</v-btn
+                        >
+                        <v-spacer></v-spacer>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
             <router-view />
         </v-dialog>
         <alert-message :attributes="alert" />
@@ -249,7 +344,7 @@
 import DespesaService from "../../services/DespesaService";
 import CategoriaDespesaService from "../../services/CategoriaDespesaService";
 import CartaoService from "../../services/CartaoService";
-import { parse } from "date-fns";
+import moment from "moment";
 
 export default {
     props: ["id"],
@@ -269,9 +364,10 @@ export default {
                 id: null,
                 descricao: "",
                 valor: null,
-                repetir: false,
+                despesaFixa: false,
                 tipoPagamento: {
-                    type: "pagamentoComMoeda",
+                    type: "pagamentoComDinheiro",
+                    quantidadeParcelas: null,
                     cartao: {
                         id: null
                     },
@@ -280,14 +376,47 @@ export default {
                 categoriaDespesa: {
                     id: null
                 }
-            }
+            },
+            itemDCat: null,
+            deleteCategoria: false,
+            itemDCartao: null,
+            deleteCartao: false
         };
     },
     created() {
         if (this.id) {
             DespesaService.findById(this.id)
                 .then(res => {
+                    res.tipoPagamento.diaPagamento =
+                        res.tipoPagamento.type == "pagamentoComCartao"
+                            ? this.formatTextDate(
+                                  res.tipoPagamento.tipoPagamentoCartaoParcelas.reduce(
+                                      (a, b) =>
+                                          a.dataPagamentoExperada >=
+                                          b.dataPagamentoExperada
+                                              ? a.dataPagamentoExperada
+                                              : b.dataPagamentoExperada,
+                                      moment()
+                                  ),
+                                  "YYYY-MM-DD"
+                              )
+                            : this.formatTextDate(
+                                  res.tipoPagamento.tipoPagamentoMoedaLogs.reduce(
+                                      (a, b) =>
+                                          a.dataPagamentoExperada >=
+                                          b.dataPagamentoExperada
+                                              ? a.dataPagamentoExperada
+                                              : b.dataPagamentoExperada,
+                                      moment()
+                                  ),
+                                  "YYYY-MM-DD"
+                              );
                     this.despesa = res;
+                    if (res.tipoPagamento.type == "pagamentoComCartao") {
+                        this.despesa.tipoPagamento.quantidadeParcelas = Array.from(
+                            res.tipoPagamento.tipoPagamentoCartaoParcelas
+                        ).length;
+                    }
                 })
                 .catch(e => {
                     this.alert = {
@@ -301,6 +430,68 @@ export default {
         this.findCategoriasDespesas();
     },
     methods: {
+        deleteCart(id) {
+            CartaoService.delete(id)
+                .then(() => {
+                    this.alert = {
+                        open: true,
+                        color: "success",
+                        title: "Sucesso",
+                        text: "Cartão excluido com sucesso"
+                    };
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir categoria",
+                        text: e.message
+                    };
+                });
+        },
+        deleteItemCartao(item) {
+            this.itemDCartao = item || item.id;
+            this.deleteCartao = true;
+        },
+        deleteItemConfirmCartao() {
+            this.deleteCart(this.itemDCartao);
+            this.closeDelete();
+        },
+        closeDeleteCartao() {
+            this.itemDCartao = null;
+            this.deleteCartao = false;
+        },
+        deleteCat(id) {
+            CategoriaDespesaService.delete(id)
+                .then(() => {
+                    this.alert = {
+                        open: true,
+                        color: "success",
+                        title: "Sucesso",
+                        text: "Categoria excluida com sucesso"
+                    };
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir categoria",
+                        text: e.message
+                    };
+                });
+        },
+        deleteItemCategoria(item) {
+            this.itemDCat = item || item.id;
+            this.deleteCategoria = true;
+        },
+        deleteItemConfirmCategoria() {
+            this.deleteCat(this.itemD);
+            this.closeDelete();
+        },
+        closeDeleteCategoria() {
+            this.itemDCat = null;
+            this.deleteCategoria = false;
+        },
         addCategory(id) {
             if (this.id == null) {
                 if (id == null) {
@@ -361,20 +552,232 @@ export default {
             this.$router.back();
             this.open = false;
         },
-        formatTextDate(date) {
-            return date ? parse(date, "dd/MM/yyyy", "20/01/2021") : "";
+        formatTextDate(date, format, referenceFormat = "DD/MM/YYYY") {
+            return date ? moment(date, referenceFormat).format(format) : "";
+        },
+        createParcelas(valor, diaPagamento) {
+            let parcelas = [];
+            for (
+                let index = 0;
+                index < this.despesa.tipoPagamento.quantidadeParcelas;
+                index++
+            ) {
+                const element = {
+                    valorParcela: (
+                        Number(valor) /
+                        this.despesa.tipoPagamento.quantidadeParcelas
+                    ).toFixed(2),
+                    statusDespesa: "A_PAGAR",
+                    numeroParcela: index + 1,
+                    dataPagamentoExperada: moment(diaPagamento)
+                        .add(index, "month")
+                        .format("DD/MM/YYYY"),
+                    dataRecebimentoReal: null
+                };
+                parcelas.push(element);
+            }
+            return parcelas;
+        },
+        updateParcelas(parcelas, diaPagamento) {
+            let finalParcelas = [];
+            diaPagamento = moment(diaPagamento, "YYYY/MM/DD").format("D");
+            console.log(diaPagamento);
+            for (let index = 0; index < parcelas.length; index++) {
+                let d = moment(parcelas[index].dataPagamentoExperada)
+                    .set("date", diaPagamento)
+                    .format("DD/MM/YYYY");
+                console.log(moment(d).get("dates"));
+                finalParcelas.push({
+                    valorParcela: parcelas[index].valorParcela,
+                    statusDespesa: parcelas[index].statusDespesa,
+                    numeroParcela: parcelas[index].numeroParcela,
+                    dataPagamentoExperada:
+                        parcelas[index].statusDespesa != "PAGO"
+                            ? d
+                            : parcelas[index].dataPagamentoExperada,
+                    dataRecebimentoReal: null
+                });
+            }
+            return finalParcelas;
         },
         salvar() {
             console.log(this.despesa);
+            let despesaASalvar = {};
+            if (this.id != null) {
+                if (this.despesa.tipoPagamento.type == "pagamentoComCartao") {
+                    despesaASalvar = {
+                        id: this.despesa.id,
+                        descricao: this.despesa.descricao,
+                        valor: Number(this.despesa.valor),
+                        despesaFixa: false,
+                        tipoPagamento: {
+                            type: "pagamentoComCartao",
+                            cartao: this.despesa.tipoPagamento.cartao,
+                            diaPagamento: moment(
+                                this.despesa.tipoPagamento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoPagamentoCartaoParcelas: this.updateParcelas(
+                                this.despesa.tipoPagamento
+                                    .tipoPagamentoCartaoParcelas,
+                                this.despesa.tipoPagamento.diaPagamento
+                            )
+                        },
+                        categoriaDespesa: {
+                            id:
+                                this.despesa.categoriaDespesa.id ||
+                                this.despesa.categoriaDespesa
+                        }
+                    };
+                    Array.from(
+                        despesaASalvar.tipoPagamento.tipoPagamentoCartaoParcelas
+                    )
+                        .filter(e => e.statusDespesa != "PAGO")
+                        .forEach(
+                            e =>
+                                (e.dataPagamentoExperada = this.formatTextDate(
+                                    this.despesa.tipoPagamento.diaPagamento,
+                                    "DD/MM/YYYY",
+                                    "YYYY-MM-DD"
+                                ))
+                        );
+                } else {
+                    despesaASalvar = {
+                        id: this.despesa.id,
+                        descricao: this.despesa.descricao,
+                        valor: Number(this.despesa.valor),
+                        despesaFixa: this.despesa.despesaFixa,
+                        tipoPagamento: {
+                            type: "pagamentoComDinheiro",
+                            moeda: "R$",
+                            diaPagamento: moment(
+                                this.despesa.tipoPagamento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoPagamentoMoedaLogs: this.despesa.tipoPagamento
+                                .tipoPagamentoMoedaLogs
+                        },
+                        categoriaDespesa: {
+                            id:
+                                this.despesa.categoriaDespesa.id ||
+                                this.despesa.categoriaDespesa
+                        }
+                    };
+                    Array.from(
+                        despesaASalvar.tipoPagamento.tipoPagamentoMoedaLogs
+                    )
+                        .filter(e => e.statusDespesa != "PAGO")
+                        .forEach(
+                            e =>
+                                (e.dataPagamentoExperada = this.formatTextDate(
+                                    this.despesa.tipoPagamento.diaPagamento,
+                                    "DD/MM/YYYY",
+                                    "YYYY-MM-DD"
+                                ))
+                        );
+                }
+                console.log("despesa update", despesaASalvar);
+                // DespesaService.update(despesaASalvar)
+                //     .then(() => {
+                //         this.alert = {
+                //             open: true,
+                //             color: "success",
+                //             title: "Sucesso",
+                //             text: "Despesa salva com sucesso"
+                //         };
+                //         this.close();
+                //     })
+                //     .catch(e => {
+                //         this.alert = {
+                //             open: true,
+                //             color: "error",
+                //             title: "Erro ao salvar despesa",
+                //             text: e.message
+                //         };
+                //     });
+            } else {
+                if (this.despesa.tipoPagamento.type == "pagamentoComCartao") {
+                    despesaASalvar = {
+                        descricao: this.despesa.descricao,
+                        valor: Number(this.despesa.valor),
+                        despesaFixa: false,
+                        tipoPagamento: {
+                            type: "pagamentoComCartao",
+                            cartao: {
+                                id: this.despesa.tipoPagamento.cartao
+                            },
+                            diaPagamento: moment(
+                                this.despesa.tipoPagamento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoPagamentoCartaoParcelas: this.createParcelas(
+                                this.despesa.valor,
+                                this.despesa.tipoPagamento.diaPagamento
+                            )
+                        },
+                        categoriaDespesa: {
+                            id: this.despesa.categoriaDespesa
+                        }
+                    };
+                } else {
+                    despesaASalvar = {
+                        descricao: this.despesa.descricao,
+                        valor: Number(this.despesa.valor),
+                        despesaFixa: this.despesa.despesaFixa,
+                        tipoPagamento: {
+                            type: "pagamentoComDinheiro",
+                            moeda: "R$",
+                            diaPagamento: moment(
+                                this.despesa.tipoPagamento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoPagamentoMoedaLogs: [
+                                {
+                                    valorPagamento: Number(this.despesa.valor),
+                                    statusDespesa: "A_PAGAR",
+                                    numeroParcela: 1,
+                                    dataPagamentoExperada: this.formatTextDate(
+                                        this.despesa.tipoPagamento.diaPagamento,
+                                        "DD/MM/YYYY",
+                                        "YYYY-MM-DD"
+                                    ),
+                                    dataRecebimentoReal: null
+                                }
+                            ]
+                        },
+                        categoriaDespesa: {
+                            id: this.despesa.categoriaDespesa
+                        }
+                    };
+                }
+                DespesaService.save(despesaASalvar)
+                    .then(() => {
+                        this.alert = {
+                            open: true,
+                            color: "success",
+                            title: "Sucesso",
+                            text: "Despesa salva com sucesso"
+                        };
+                        this.close();
+                    })
+                    .catch(e => {
+                        this.alert = {
+                            open: true,
+                            color: "error",
+                            title: "Erro ao salvar despesa",
+                            text: e.message
+                        };
+                    });
+            }
         }
     },
     computed: {
-        receb() {
+        pagamento() {
             return this.despesa.tipoPagamento.type;
         }
     },
     watch: {
-        receb() {
+        pagamento() {
             if (this.despesa.tipoPagamento.type == "pagamentoComCartao") {
                 CartaoService.findAll()
                     .then(res => {
@@ -384,7 +787,7 @@ export default {
                         this.alert = {
                             open: true,
                             color: "error",
-                            title: "Erro a buscar dados",
+                            title: "Erro a buscar dados dos cartões",
                             text: e.message
                         };
                     });

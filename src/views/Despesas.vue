@@ -92,7 +92,7 @@
                             width="100%"
                         >
                             <div class="text-h6">
-                                Receitas nos últimos 6 meses
+                                Despesas nos últimos 6 meses
                             </div>
                         </v-sheet>
                         <apexchart
@@ -143,14 +143,14 @@
         <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card>
                 <v-card-title class="headline"
-                    >Você realmente deseja excluir a receita?</v-card-title
+                    >Você realmente deseja excluir a despesa?</v-card-title
                 >
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="closeDelete"
+                    <v-btn color="primary" text @click="closeDelete"
                         >Cancelar</v-btn
                     >
-                    <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                    <v-btn color="primary" text @click="deleteItemConfirm"
                         >OK</v-btn
                     >
                     <v-spacer></v-spacer>
@@ -272,15 +272,6 @@ export default {
                     }
                 }
             },
-            headersOtherTable: [
-                {
-                    text: "Data Recebimento Experada",
-                    value: "dataRecebimentoExperada"
-                },
-                { text: "Data Recebimento Real", value: "dataRecebimentoReal" },
-                { text: "Status", value: "statusReceita" },
-                { text: "Valor Recebido", value: "valorRecebido" }
-            ],
             headers: [
                 {
                     text: "Descrição",
@@ -308,6 +299,12 @@ export default {
         this.fillCardData();
         this.filTable();
         this.fillBarChart();
+    },
+    beforeRouteUpdate(_to, _from, next) {
+        this.fillCardData();
+        this.filTable();
+        this.fillBarChart();
+        next();
     },
     methods: {
         editLogs(id) {
@@ -429,24 +426,38 @@ export default {
         fillBarChart() {
             DespesaService.findDespesasLast6Months()
                 .then(res => {
-                    res.map(r => {
-                        let data = {
-                            name: r.categoriaNome,
-                            data: [
-                                {
-                                    x: r.categoriaNome,
-                                    y: r.valor
-                                }
-                            ]
-                        };
-                        this.barChart.series.push(data);
-                        this.barChart.chartOptions.xaxis.categories.push(
-                            r.categoriaNome
+                    if (res.length > 0) {
+                        this.barChart.chartOptions.xaxis.categories.splice(
+                            0,
+                            this.barChart.chartOptions.xaxis.categories.length
                         );
-                        this.barChart.chartOptions.colors.push(r.categoriaCor);
-                    });
-                    this.barChart.chartOptions.colors.splice(0, 1);
-                    this.barChart.series.splice(0, 1);
+                        this.barChart.chartOptions.colors.splice(
+                            0,
+                            this.barChart.chartOptions.colors.length
+                        );
+                        this.barChart.series.splice(
+                            0,
+                            this.barChart.series.length
+                        );
+                        res.map(r => {
+                            let data = {
+                                name: r.categoriaNome,
+                                data: [
+                                    {
+                                        x: r.categoriaNome,
+                                        y: r.valor
+                                    }
+                                ]
+                            };
+                            this.barChart.series.push(data);
+                            this.barChart.chartOptions.xaxis.categories.push(
+                                r.categoriaNome
+                            );
+                            this.barChart.chartOptions.colors.push(
+                                r.categoriaCor
+                            );
+                        });
+                    }
                 })
                 .catch(e => console.error(e));
         },
@@ -460,11 +471,29 @@ export default {
             };
             DespesaService.porCategoriaEMês(this.month)
                 .then(res => {
-                    res.map(r => {
-                        this.pieChart.series.push(r.valor);
-                        this.pieChart.chartOptions.labels.push(r.categoriaNome);
-                        this.pieChart.chartOptions.colors.push(r.categoriaCor);
-                    });
+                    if (res.length > 0) {
+                        this.pieChart.chartOptions.labels.splice(
+                            0,
+                            this.pieChart.chartOptions.labels.length
+                        );
+                        this.pieChart.chartOptions.colors.splice(
+                            0,
+                            this.pieChart.chartOptions.colors.length
+                        );
+                        this.pieChart.series.splice(
+                            0,
+                            this.pieChart.series.length
+                        );
+                        res.map(r => {
+                            this.pieChart.series.push(r.valor);
+                            this.pieChart.chartOptions.labels.push(
+                                r.categoriaNome
+                            );
+                            this.pieChart.chartOptions.colors.push(
+                                r.categoriaCor
+                            );
+                        });
+                    }
                 })
                 .catch(e => console.error(e));
         }

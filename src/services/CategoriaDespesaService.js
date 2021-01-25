@@ -27,7 +27,7 @@ class CategoriaDespesaService {
     }
     delete(id) {
         return new Promise((resolve, reject) => {
-            backendUrl.get(`/categoriaDespesa/delete/${id}`).then(
+            backendUrl.delete(`/categoriaDespesa/delete/${id}`).then(
                 response => resolve(response.data),
                 err => reject(err.response)
             );

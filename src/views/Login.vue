@@ -81,6 +81,7 @@
                 </v-row>
             </v-container>
             <router-view />
+            <alert-message :attributes="alert" />
         </v-main>
     </v-app>
 </template>
@@ -90,6 +91,12 @@ import AuthenticationService from "../services/AuthenticationService";
 export default {
     data() {
         return {
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
             credenciais: {
                 email: "",
                 senha: ""
@@ -103,14 +110,21 @@ export default {
                     this.$store.commit("LOGIN", response);
                     AuthenticationService.clarifyToken(response.token).then(
                         response => {
-                            console.log(response);
                             this.$store.commit("PERMS", response.body);
                             this.$router.push({ name: "DashBoard" });
                         }
                     );
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
                 })
-                .catch(error => {
-                    console.error(error);
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao efetuar login",
+                        text: e.message
+                    };
                 });
         },
         forgetPassword() {

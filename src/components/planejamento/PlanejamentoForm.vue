@@ -108,7 +108,7 @@
 <script>
 import PlanejamentoService from "../../services/PlanejamentoService";
 import CategoriaDespesaService from "../../services/CategoriaDespesaService";
-import { parse } from "date-fns";
+import moment from "moment";
 
 export default {
     props: ["id"],
@@ -259,7 +259,7 @@ export default {
             this.open = false;
         },
         formatTextDate(date) {
-            return date ? parse(date, "dd/MM/yyyy", "20/01/2021") : "";
+            return date ? moment(date).format("DD/MM/YYYY") : "";
         },
         salvar() {
             console.log(this.planejamento);

@@ -28,6 +28,7 @@
                                     v-model="receita.valor"
                                     class="mb-5"
                                     label="Valor"
+                                    type="number"
                                     single-line
                                     hide-details
                                 ></v-text-field>
@@ -68,9 +69,20 @@
                                         <template v-else>
                                             <v-btn
                                                 icon
+                                                v-if="
+                                                    receita.categoriaReceita >=
+                                                        30 ||
+                                                        receita.categoriaReceita
+                                                            .id >= 30
+                                                "
                                                 @click="
                                                     addCategory(
                                                         receita.categoriaReceita
+                                                            .id == null
+                                                            ? receita.categoriaReceita
+                                                            : receita
+                                                                  .categoriaReceita
+                                                                  .id
                                                     )
                                                 "
                                             >
@@ -78,7 +90,20 @@
                                                     >mdi-pencil</v-icon
                                                 >
                                             </v-btn>
-                                            <v-btn icon>
+                                            <v-btn
+                                                icon
+                                                @click="
+                                                    deleteItemCategoria(
+                                                        receita.categoriaReceita
+                                                    )
+                                                "
+                                                v-if="
+                                                    receita.categoriaReceita >=
+                                                        30 ||
+                                                        receita.categoriaReceita
+                                                            .id >= 30
+                                                "
+                                            >
                                                 <v-icon class="purple--text"
                                                     >mdi-delete</v-icon
                                                 >
@@ -93,39 +118,20 @@
                                     Data de Recebimento
                                     <span style="color: red"> * </span>
                                 </v-label>
-                                <v-menu
-                                    ref="date"
-                                    v-model="date"
-                                    :close-on-content-click="false"
-                                    transition="scale-transition"
-                                    offset-y
-                                    min-width="290px"
-                                >
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-text-field
-                                            required
-                                            outlined
-                                            dense
-                                            readonly
-                                            :value="
-                                                formatTextDate(
-                                                    receita.tipoRecebimento
-                                                        .diaPagamento
-                                                )
-                                            "
-                                            v-bind="attrs"
-                                            v-on="on"
-                                        ></v-text-field>
-                                    </template>
-                                    <v-date-picker
-                                        v-model="
-                                            receita.tipoRecebimento.diaPagamento
-                                        "
-                                        no-title
-                                        scrollable
-                                        @input="date = false"
-                                    />
-                                </v-menu>
+                                <v-text-field
+                                    v-model="
+                                        receita.tipoRecebimento.diaPagamento
+                                    "
+                                    :value="
+                                        formatTextDate(
+                                            receita.tipoRecebimento
+                                                .diaPagamento,
+                                            'YYYY-MM-DD'
+                                        )
+                                    "
+                                    type="date"
+                                    outlined
+                                ></v-text-field>
                                 <v-label>
                                     Descrição
                                     <span style="color: red"> * </span>
@@ -212,7 +218,16 @@
                                                                 >mdi-pencil</v-icon
                                                             >
                                                         </v-btn>
-                                                        <v-btn icon>
+                                                        <v-btn
+                                                            icon
+                                                            @click="
+                                                                deleteItemBanco(
+                                                                    receita
+                                                                        .tipoRecebimento
+                                                                        .banco
+                                                                )
+                                                            "
+                                                        >
                                                             <v-icon
                                                                 class="purple--text"
                                                                 >mdi-delete</v-icon
@@ -239,6 +254,50 @@
                     </v-card-text>
                 </v-form>
             </v-card>
+            <v-dialog v-model="deleteCategoria" max-width="600px">
+                <v-card>
+                    <v-card-title class="headline"
+                        >Você realmente deseja excluir a
+                        categoria?</v-card-title
+                    >
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="primary"
+                            text
+                            @click="closeDeleteCategoria"
+                            >Cancelar</v-btn
+                        >
+                        <v-btn
+                            color="primary"
+                            text
+                            @click="deleteItemConfirmCategoria"
+                            >OK</v-btn
+                        >
+                        <v-spacer></v-spacer>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="deleteBanco" max-width="500px">
+                <v-card>
+                    <v-card-title class="headline"
+                        >Você realmente deseja excluir o banco?</v-card-title
+                    >
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="closeDeleteBanco"
+                            >Cancelar</v-btn
+                        >
+                        <v-btn
+                            color="primary"
+                            text
+                            @click="deleteItemConfirmBanco"
+                            >OK</v-btn
+                        >
+                        <v-spacer></v-spacer>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
             <router-view />
         </v-dialog>
         <alert-message :attributes="alert" />
@@ -249,7 +308,7 @@
 import ReceitaService from "../../services/ReceitaService";
 import CategoriaReceitaService from "../../services/CategoriaReceitaService";
 import BancoService from "../../services/BancoService";
-import { parse } from "date-fns";
+import moment from "moment";
 
 export default {
     props: ["id"],
@@ -280,13 +339,41 @@ export default {
                 categoriaReceita: {
                     id: null
                 }
-            }
+            },
+            itemDCat: null,
+            deleteCategoria: false,
+            itemDBanco: null,
+            deleteBanco: false
         };
     },
     created() {
         if (this.id) {
             ReceitaService.findById(this.id)
                 .then(res => {
+                    res.tipoRecebimento.diaPagamento =
+                        res.tipoRecebimento.type == "recebimentoComBanco"
+                            ? this.formatTextDate(
+                                  res.tipoRecebimento.tipoRecebimentoBancoLogs.reduce(
+                                      (a, b) =>
+                                          a.dataRecebimentoExperada >=
+                                          b.dataRecebimentoExperada
+                                              ? a.dataRecebimentoExperada
+                                              : b.dataRecebimentoExperada,
+                                      moment()
+                                  ),
+                                  "YYYY-MM-DD"
+                              )
+                            : this.formatTextDate(
+                                  res.tipoRecebimento.tipoRecebimentoMoedaLogs.reduce(
+                                      (a, b) =>
+                                          a.dataRecebimentoExperada >=
+                                          b.dataRecebimentoExperada
+                                              ? a.dataRecebimentoExperada
+                                              : b.dataRecebimentoExperada,
+                                      moment()
+                                  ),
+                                  "YYYY-MM-DD"
+                              );
                     this.receita = res;
                 })
                 .catch(e => {
@@ -301,6 +388,68 @@ export default {
         this.findCategoriasReceitas();
     },
     methods: {
+        deleteBanc(id) {
+            BancoService.delete(id)
+                .then(() => {
+                    this.alert = {
+                        open: true,
+                        color: "success",
+                        title: "Sucesso",
+                        text: "Banco/Conta bancária excluida com sucesso"
+                    };
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir categoria",
+                        text: e.message
+                    };
+                });
+        },
+        deleteItemBanco(item) {
+            this.itemDBanco = item || item.id;
+            this.deleteBanco = true;
+        },
+        deleteItemConfirmBanco() {
+            this.deleteBanc(this.itemDBanco);
+            this.closeDelete();
+        },
+        closeDeleteBanco() {
+            this.itemDBanco = null;
+            this.deleteBanco = false;
+        },
+        deleteCat(id) {
+            CategoriaReceitaService.delete(id)
+                .then(() => {
+                    this.alert = {
+                        open: true,
+                        color: "success",
+                        title: "Sucesso",
+                        text: "Categoria excluida com sucesso"
+                    };
+                })
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir categoria",
+                        text: e.message
+                    };
+                });
+        },
+        deleteItemCategoria(item) {
+            this.itemDCat = item || item.id;
+            this.deleteCategoria = true;
+        },
+        deleteItemConfirmCategoria() {
+            this.deleteCat(this.itemD);
+            this.closeDelete();
+        },
+        closeDeleteCategoria() {
+            this.itemDCat = null;
+            this.deleteCategoria = false;
+        },
         addCategory(id) {
             if (this.id == null) {
                 if (id == null) {
@@ -361,11 +510,186 @@ export default {
             this.$router.back();
             this.open = false;
         },
-        formatTextDate(date) {
-            return date ? parse(date, "dd/MM/yyyy", "20/01/2021") : "";
+        formatTextDate(date, format, referenceFormat = "DD/MM/YYYY") {
+            return date ? moment(date, referenceFormat).format(format) : "";
         },
         salvar() {
-            console.log(this.receita);
+            let receitaASalvar = {};
+            if (this.id != null) {
+                if (
+                    this.receita.tipoRecebimento.type == "recebimentoComBanco"
+                ) {
+                    receitaASalvar = {
+                        id: this.receita.id,
+                        descricao: this.receita.descricao,
+                        valor: Number(this.receita.valor),
+                        repetir: this.receita.repetir,
+                        tipoRecebimento: {
+                            type: "recebimentoComBanco",
+                            banco: this.receita.tipoRecebimento.banco,
+                            diaPagamento: moment(
+                                this.receita.tipoRecebimento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoRecebimentoBancoLogs: this.receita
+                                .tipoRecebimento.tipoRecebimentoBancoLogs
+                        },
+                        categoriaReceita: {
+                            id:
+                                this.receita.categoriaReceita.id ||
+                                this.receita.categoriaReceita
+                        }
+                    };
+                    Array.from(
+                        receitaASalvar.tipoRecebimento.tipoRecebimentoBancoLogs
+                    )
+                        .filter(e => e.statusReceita != "RECEBIDO")
+                        .forEach(
+                            e =>
+                                (e.dataRecebimentoExperada = this.formatTextDate(
+                                    this.receita.tipoRecebimento.diaPagamento,
+                                    "DD/MM/YYYY",
+                                    "YYYY-MM-DD"
+                                ))
+                        );
+                } else {
+                    receitaASalvar = {
+                        id: this.receita.id,
+                        descricao: this.receita.descricao,
+                        valor: Number(this.receita.valor),
+                        repetir: this.receita.repetir,
+                        tipoRecebimento: {
+                            type: "recebimentoComMoeda",
+                            moeda: "R$",
+                            diaPagamento: moment(
+                                this.receita.tipoRecebimento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoRecebimentoMoedaLogs: this.receita
+                                .tipoRecebimento.tipoRecebimentoMoedaLogs
+                        },
+                        categoriaReceita: {
+                            id:
+                                this.receita.categoriaReceita.id ||
+                                this.receita.categoriaReceita
+                        }
+                    };
+                    Array.from(
+                        receitaASalvar.tipoRecebimento.tipoRecebimentoMoedaLogs
+                    )
+                        .filter(e => e.statusReceita != "RECEBIDO")
+                        .forEach(
+                            e =>
+                                (e.dataRecebimentoExperada = this.formatTextDate(
+                                    this.receita.tipoRecebimento.diaPagamento,
+                                    "DD/MM/YYYY",
+                                    "YYYY-MM-DD"
+                                ))
+                        );
+                }
+                ReceitaService.update(receitaASalvar)
+                    .then(() => {
+                        this.alert = {
+                            open: true,
+                            color: "success",
+                            title: "Sucesso",
+                            text: "Receita salva com sucesso"
+                        };
+                        this.close();
+                    })
+                    .catch(e => {
+                        this.alert = {
+                            open: true,
+                            color: "error",
+                            title: "Erro ao salvar receita",
+                            text: e.message
+                        };
+                    });
+            } else {
+                if (
+                    this.receita.tipoRecebimento.type == "recebimentoComBanco"
+                ) {
+                    receitaASalvar = {
+                        descricao: this.receita.descricao,
+                        valor: Number(this.receita.valor),
+                        repetir: this.receita.repetir,
+                        tipoRecebimento: {
+                            type: "recebimentoComBanco",
+                            banco: {
+                                id: this.receita.tipoRecebimento.banco
+                            },
+                            diaPagamento: moment(
+                                this.receita.tipoRecebimento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoRecebimentoBancoLogs: [
+                                {
+                                    valorRecebido: Number(this.receita.valor),
+                                    statusReceita: "A_RECEBER",
+                                    dataRecebimentoExperada: this.formatTextDate(
+                                        this.receita.tipoRecebimento
+                                            .diaPagamento,
+                                        "DD/MM/YYYY",
+                                        "YYYY-MM-DD"
+                                    ),
+                                    dataRecebimentoReal: null
+                                }
+                            ]
+                        },
+                        categoriaReceita: {
+                            id: this.receita.categoriaReceita
+                        }
+                    };
+                } else {
+                    receitaASalvar = {
+                        descricao: this.receita.descricao,
+                        valor: Number(this.receita.valor),
+                        repetir: this.receita.repetir,
+                        tipoRecebimento: {
+                            type: "recebimentoComMoeda",
+                            moeda: "R$",
+                            diaPagamento: moment(
+                                this.receita.tipoRecebimento.diaPagamento,
+                                "YYYY/MM/DD"
+                            ).format("D"),
+                            tipoRecebimentoMoedaLogs: [
+                                {
+                                    valorRecebido: Number(this.receita.valor),
+                                    statusReceita: "A_RECEBER",
+                                    dataRecebimentoExperada: this.formatTextDate(
+                                        this.receita.tipoRecebimento
+                                            .diaPagamento,
+                                        "DD/MM/YYYY",
+                                        "YYYY-MM-DD"
+                                    ),
+                                    dataRecebimentoReal: null
+                                }
+                            ]
+                        },
+                        categoriaReceita: {
+                            id: this.receita.categoriaReceita
+                        }
+                    };
+                }
+                ReceitaService.save(receitaASalvar)
+                    .then(() => {
+                        this.alert = {
+                            open: true,
+                            color: "success",
+                            title: "Sucesso",
+                            text: "Receita salva com sucesso"
+                        };
+                        this.close();
+                    })
+                    .catch(e => {
+                        this.alert = {
+                            open: true,
+                            color: "error",
+                            title: "Erro ao salvar receita",
+                            text: e.message
+                        };
+                    });
+            }
         }
     },
     computed: {

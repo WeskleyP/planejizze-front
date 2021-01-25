@@ -137,7 +137,12 @@ export default {
                 series: [],
                 chartOptions: {
                     labels: [],
-                    colors: []
+                    colors: [],
+                    noData: {
+                        text: "Não foi possível encontrar dados!",
+                        align: "center",
+                        verticalAlign: "middle"
+                    }
                 }
             },
             horizontalBarData: {
@@ -147,6 +152,11 @@ export default {
                     }
                 ],
                 chartOptions: {
+                    noData: {
+                        text: "Não foi possível encontrar dados!",
+                        align: "center",
+                        verticalAlign: "middle"
+                    },
                     xaxis: {
                         categories: []
                     },
@@ -173,6 +183,11 @@ export default {
                     }
                 ],
                 chartOptions: {
+                    noData: {
+                        text: "Não foi possível encontrar dados!",
+                        align: "center",
+                        verticalAlign: "middle"
+                    },
                     xaxis: {
                         categories: []
                     },
@@ -199,6 +214,11 @@ export default {
                     }
                 ],
                 chartOptions: {
+                    noData: {
+                        text: "Não foi possível encontrar dados!",
+                        align: "center",
+                        verticalAlign: "middle"
+                    },
                     xaxis: {
                         categories: []
                     },
@@ -261,11 +281,29 @@ export default {
             };
             DespesaService.porCategoriaEMês(this.month)
                 .then(res => {
-                    res.map(r => {
-                        this.pieData.series.push(r.valor);
-                        this.pieData.chartOptions.labels.push(r.categoriaNome);
-                        this.pieData.chartOptions.colors.push(r.categoriaCor);
-                    });
+                    if (res.length > 0) {
+                        this.pieData.chartOptions.labels.splice(
+                            0,
+                            this.pieData.chartOptions.labels.length
+                        );
+                        this.pieData.chartOptions.colors.splice(
+                            0,
+                            this.pieData.chartOptions.colors.length
+                        );
+                        this.pieData.series.splice(
+                            0,
+                            this.pieData.series.length
+                        );
+                        res.map(r => {
+                            this.pieData.series.push(r.valor);
+                            this.pieData.chartOptions.labels.push(
+                                r.categoriaNome
+                            );
+                            this.pieData.chartOptions.colors.push(
+                                r.categoriaCor
+                            );
+                        });
+                    }
                 })
                 .catch(e => {
                     this.alert = {
@@ -303,31 +341,43 @@ export default {
                     colors: []
                 }
             };
+
             ReceitaService.dashboard(this.selectedDay)
                 .then(res => {
-                    res.map(item => item.age).filter(
-                        (value, index, self) => self.indexOf(value) === index
-                    );
-                    res.map(r => {
-                        let data = {
-                            name: r.categoriaReceita.nome,
-                            data: [
-                                {
-                                    x: r.categoriaReceita.nome,
-                                    y: r.valor
-                                }
-                            ]
-                        };
-                        this.horizontalBarData.series.push(data);
-                        this.horizontalBarData.chartOptions.xaxis.categories.push(
-                            r.categoriaReceita.nome
+                    if (res.length > 0) {
+                        this.horizontalBarData.series.splice(
+                            0,
+                            this.horizontalBarData.series.length
                         );
-                        this.horizontalBarData.chartOptions.colors.push(
-                            r.categoriaReceita.cor
+                        this.horizontalBarData.chartOptions.colors.splice(
+                            0,
+                            this.horizontalBarData.chartOptions.colors.length
                         );
-                    });
-                    this.horizontalBarData.chartOptions.colors.splice(0, 1);
-                    this.horizontalBarData.series.splice(0, 1);
+                        this.horizontalBarData.chartOptions.xaxis.categories.splice(
+                            0,
+                            this.horizontalBarData.chartOptions.xaxis.categories
+                                .length
+                        );
+                        res.map(r => {
+                            let data = {
+                                name: r.categoriaReceita.nome,
+                                data: [
+                                    {
+                                        x: r.categoriaReceita.nome,
+                                        y: r.valor
+                                    }
+                                ]
+                            };
+
+                            this.horizontalBarData.series.push(data);
+                            this.horizontalBarData.chartOptions.xaxis.categories.push(
+                                r.categoriaReceita.nome
+                            );
+                            this.horizontalBarData.chartOptions.colors.push(
+                                r.categoriaReceita.cor
+                            );
+                        });
+                    }
                 })
                 .catch(e => {
                     this.alert = {
@@ -368,6 +418,18 @@ export default {
             DespesaService.dashboard(this.selectedDay2)
                 .then(res => {
                     if (res.length > 0) {
+                        this.barData.series.splice(
+                            0,
+                            this.barData.series.length
+                        );
+                        this.barData.chartOptions.colors.splice(
+                            0,
+                            this.barData.chartOptions.colors.length
+                        );
+                        this.barData.chartOptions.xaxis.categories.splice(
+                            0,
+                            this.barData.chartOptions.xaxis.categories.length
+                        );
                         res = res.reduce((r, a) => {
                             return {
                                 categoriaDespesa: {
@@ -377,6 +439,7 @@ export default {
                                 valor: r.valor + a.valor
                             };
                         });
+                        console.log(res);
                         Array(res).map(r => {
                             let data = {
                                 name: r.categoriaDespesa.nome,
@@ -395,8 +458,6 @@ export default {
                                 r.categoriaDespesa.cor
                             );
                         });
-                        this.barData.chartOptions.colors.splice(0, 1);
-                        this.barData.series.splice(0, 1);
                     }
                 })
                 .catch(e => {

@@ -95,6 +95,7 @@
             </v-col>
         </v-row>
         <router-view />
+        <alert-message :attributes="alert" />
     </v-container>
 </template>
 
@@ -105,6 +106,12 @@ export default {
     data() {
         return {
             selected: [],
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
             search: "",
             colors: ["#0ACF83", "#8000FF", "#FF0742"],
             headers: [
@@ -169,15 +176,28 @@ export default {
                 .then(res => {
                     this.roles = res;
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao buscar as funções",
+                        text: e.message
+                    };
+                });
         },
         findAllUsers() {
             UsuarioService.findAll()
                 .then(res => {
-                    console.log("users", res);
                     this.users = res;
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao buscar os usuários",
+                        text: e.message
+                    };
+                });
         },
         seePermissions(role) {
             this.$router.push({
@@ -209,28 +229,47 @@ export default {
             };
             UsuarioService.usersCountByRole()
                 .then(res => {
-                    res.map((r, index) => {
-                        let data = {
-                            name: r.roleName,
-                            data: [
-                                {
-                                    x: r.roleName,
-                                    y: r.countPerRole
-                                }
-                            ]
-                        };
-                        this.barChart.series.push(data);
-                        this.barChart.chartOptions.xaxis.categories.push(
-                            r.roleName
+                    if (res.length > 0) {
+                        this.barChart.series.splice(
+                            0,
+                            this.barChart.series.length
                         );
-                        this.barChart.chartOptions.colors.push(
-                            this.colors[index > 2 ? 0 : index]
+                        this.barChart.chartOptions.colors.splice(
+                            0,
+                            this.barChart.chartOptions.colors.length
                         );
-                    });
-                    this.barChart.chartOptions.colors.splice(0, 1);
-                    this.barChart.series.splice(0, 1);
+                        this.barChart.chartOptions.xaxis.categories.splice(
+                            0,
+                            this.barChart.chartOptions.xaxis.categories.length
+                        );
+                        res.map((r, index) => {
+                            let data = {
+                                name: r.roleName,
+                                data: [
+                                    {
+                                        x: r.roleName,
+                                        y: r.countPerRole
+                                    }
+                                ]
+                            };
+                            this.barChart.series.push(data);
+                            this.barChart.chartOptions.xaxis.categories.push(
+                                r.roleName
+                            );
+                            this.barChart.chartOptions.colors.push(
+                                this.colors[index > 2 ? 0 : index]
+                            );
+                        });
+                    }
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao buscar dados do gráfico",
+                        text: e.message
+                    };
+                });
         }
     }
 };

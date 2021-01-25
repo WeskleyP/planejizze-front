@@ -35,7 +35,7 @@ class UsuarioService {
     }
     delete(id) {
         return new Promise((resolve, reject) => {
-            backendUrl.get(`/usuario/delete/${id}`).then(
+            backendUrl.delete(`/usuario/delete/${id}`).then(
                 response => resolve(response.data),
                 err => reject(err.response)
             );

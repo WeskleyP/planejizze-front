@@ -27,7 +27,7 @@ class PlanejamentoService {
     }
     delete(id) {
         return new Promise((resolve, reject) => {
-            backendUrl.get(`/planejamento/delete/${id}`).then(
+            backendUrl.delete(`/planejamento/delete/${id}`).then(
                 response => resolve(response.data),
                 err => reject(err.response)
             );

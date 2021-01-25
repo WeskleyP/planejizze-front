@@ -6,7 +6,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         drawer: true,
-        token: localStorage.getItem("token")
+        token: localStorage.getItem("token"),
+        permission: localStorage.getItem("permissions")
     },
     mutations: {
         SET_DRAWER(state, payload) {

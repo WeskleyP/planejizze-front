@@ -160,10 +160,10 @@
                 >
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="closeDelete"
+                    <v-btn color="primary" text @click="closeDelete"
                         >Cancelar</v-btn
                     >
-                    <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                    <v-btn color="primary" text @click="deleteItemConfirm"
                         >OK</v-btn
                     >
                     <v-spacer></v-spacer>
@@ -320,6 +320,12 @@ export default {
         this.filTable();
         this.fillBarChart();
     },
+    beforeRouteUpdate(_to, _from, next) {
+        this.fillCardData();
+        this.filTable();
+        this.fillBarChart();
+        next();
+    },
     methods: {
         editLogs(id) {
             let logs = this.logs.find(e => e.id === id);
@@ -472,24 +478,38 @@ export default {
         fillBarChart() {
             ReceitaService.findReceitasLast6Months()
                 .then(res => {
-                    res.map(r => {
-                        let data = {
-                            name: r.categoriaNome,
-                            data: [
-                                {
-                                    x: r.categoriaNome,
-                                    y: r.valor
-                                }
-                            ]
-                        };
-                        this.barChart.series.push(data);
-                        this.barChart.chartOptions.xaxis.categories.push(
-                            r.categoriaNome
+                    if (res.length > 0) {
+                        this.barChart.chartOptions.xaxis.categories.splice(
+                            0,
+                            this.barChart.chartOptions.xaxis.categories.length
                         );
-                        this.barChart.chartOptions.colors.push(r.categoriaCor);
-                    });
-                    this.barChart.chartOptions.colors.splice(0, 1);
-                    this.barChart.series.splice(0, 1);
+                        this.barChart.chartOptions.colors.splice(
+                            0,
+                            this.barChart.chartOptions.colors.length
+                        );
+                        this.barChart.series.splice(
+                            0,
+                            this.barChart.series.length
+                        );
+                        res.map(r => {
+                            let data = {
+                                name: r.categoriaNome,
+                                data: [
+                                    {
+                                        x: r.categoriaNome,
+                                        y: r.valor
+                                    }
+                                ]
+                            };
+                            this.barChart.series.push(data);
+                            this.barChart.chartOptions.xaxis.categories.push(
+                                r.categoriaNome
+                            );
+                            this.barChart.chartOptions.colors.push(
+                                r.categoriaCor
+                            );
+                        });
+                    }
                 })
                 .catch(e => {
                     this.alert = {
@@ -511,6 +531,18 @@ export default {
             ReceitaService.porCategoriaEMês(this.month)
                 .then(res => {
                     if (res.length > 0) {
+                        this.pieChart.chartOptions.labels.splice(
+                            0,
+                            this.pieChart.chartOptions.labels.length
+                        );
+                        this.pieChart.chartOptions.colors.splice(
+                            0,
+                            this.pieChart.chartOptions.colors.length
+                        );
+                        this.pieChart.series.splice(
+                            0,
+                            this.pieChart.series.length
+                        );
                         res.map(r => {
                             this.pieChart.series.push(r.valor);
                             this.pieChart.chartOptions.labels.push(

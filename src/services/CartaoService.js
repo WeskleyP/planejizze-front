@@ -27,7 +27,7 @@ class CartaoService {
     }
     delete(id) {
         return new Promise((resolve, reject) => {
-            backendUrl.get(`/cartao/delete/${id}`).then(
+            backendUrl.delete(`/cartao/delete/${id}`).then(
                 response => resolve(response.data),
                 err => reject(err.response)
             );
