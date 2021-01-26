@@ -170,7 +170,25 @@
                 </v-row>
             </v-col>
         </v-row>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card>
+                <v-card-title class="headline"
+                    >Você realmente deseja excluir o planejamento?</v-card-title
+                >
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" text @click="closeDelete"
+                        >Cancelar</v-btn
+                    >
+                    <v-btn color="primary" text @click="deleteItemConfirm"
+                        >OK</v-btn
+                    >
+                    <v-spacer></v-spacer>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <router-view />
+        <alert-message :attributes="alert" />
     </v-container>
 </template>
 
@@ -181,6 +199,12 @@ import { format } from "date-fns";
 export default {
     data() {
         return {
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
             progressValue: 0,
             itemD: null,
             pd: null,
@@ -258,6 +282,12 @@ export default {
         this.lastPlanejamento();
         this.planDrop();
     },
+    beforeRouteUpdate(_to, _from, next) {
+        this.fillData();
+        this.lastPlanejamento();
+        this.planDrop();
+        next();
+    },
     methods: {
         addNewItem() {
             this.$router.push({ name: "PlanejamentoForm" });
@@ -271,7 +301,14 @@ export default {
                     this.planDropdown = res;
                     this.pd = this.planDropdown[0].id || null;
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar buscar dados",
+                        text: e.message
+                    };
+                });
         },
         delete(id) {
             PlanejamentoService.delete(id)
@@ -299,6 +336,7 @@ export default {
         deleteItemConfirm() {
             this.delete(this.itemD);
             this.closeDelete();
+            this.fillData();
         },
         closeDelete() {
             this.itemD = null;
@@ -320,6 +358,18 @@ export default {
                     this.lastPlan.planejamentoPrevistoRealCategorias.reduce(
                         (a, b) => a.valorGastoAtual + b.valorGastoAtual
                     );
+                    this.barChartPlan.chartOptions.xaxis.categories.splice(
+                        0,
+                        this.barChartPlan.chartOptions.xaxis.categories.length
+                    );
+                    this.barChartPlan.chartOptions.colors.splice(
+                        0,
+                        this.barChartPlan.chartOptions.colors.length
+                    );
+                    this.barChartPlan.series.splice(
+                        0,
+                        this.barChartPlan.series.length
+                    );
                     this.lastPlan.planejamentoPrevistoRealCategorias.map(r => {
                         let data = {
                             name: r.categoriaNome,
@@ -338,10 +388,15 @@ export default {
                             r.categoriaCor
                         );
                     });
-                    this.barChartPlan.chartOptions.colors.splice(0, 1);
-                    this.barChartPlan.series.splice(0, 1);
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar buscar dados",
+                        text: e.message
+                    };
+                });
         },
         fillData() {
             PlanejamentoService.findAll()
@@ -349,7 +404,14 @@ export default {
                     this.planejamentos = res;
                     this.findSecondChart();
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar buscar dados",
+                        text: e.message
+                    };
+                });
         },
         findSecondChart() {
             PlanejamentoService.findPlanejamentoPrevistoDespesaReal(this.pd)
@@ -392,9 +454,15 @@ export default {
                     });
                     this.barChart.series.splice(0, 1);
                     // this.barChart.chartOptions.colors.splice(0, 1);
-                    console.log(this.barChart);
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar buscar dados",
+                        text: e.message
+                    };
+                });
         },
         openModal(categorias) {
             this.$router.push({

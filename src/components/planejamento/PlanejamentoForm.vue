@@ -35,29 +35,31 @@
                                     Categorias do planejamento
                                     <span style="color: red"> * </span>
                                 </v-label>
-                                <v-select
+                                <v-combobox
                                     :items="categoriaDespesa"
-                                    v-model="planejamento.categorias"
+                                    v-model="categorias"
                                     item-text="nome"
-                                    item-value="id"
                                     multiple
                                     label="Escolha uma categoria"
-                                    ><template v-slot:item="{ item }">
-                                        <span>{{ item.nome }}</span>
+                                ></v-combobox>
+                                <template v-if="categorias.length > 0">
+                                    <div
+                                        v-for="c in categorias"
+                                        :key="c.id"
+                                        style="display: flex; align-items: center; justify-content: space-between;"
+                                    >
+                                        <span>{{ c.nome }}</span>
                                         <v-spacer />
                                         <v-text-field
                                             outlined
-                                            v-model="
-                                                planejamento.categorias
-                                                    .valorMaximoGasto
-                                            "
+                                            v-model="c.valorMaximoGasto"
                                             label="Valor máximo"
                                             class="text-right mw"
                                             single-line
                                             hide-details
                                         ></v-text-field>
-                                    </template>
-                                </v-select>
+                                    </div>
+                                </template>
                             </v-col>
                             <v-divider vertical />
                             <v-col cols="5" xs="12" md="5" lg="5" class="ml-4">
@@ -71,6 +73,7 @@
                                     class="mb-5"
                                     label="Meta de Gastos"
                                     single-line
+                                    type="number"
                                     hide-details
                                 ></v-text-field>
                                 <v-label>
@@ -83,6 +86,7 @@
                                     :close-on-content-click="false"
                                     transition="scale-transition"
                                     offset-y
+                                    :disabled="id != null"
                                     min-width="290px"
                                 >
                                     <template v-slot:activator="{ on, attrs }">
@@ -91,6 +95,7 @@
                                             outlined
                                             dense
                                             readonly
+                                            :disabled="id != null"
                                             :value="formatMonth(selectedMonth)"
                                             v-on="on"
                                             v-bind="attrs"
@@ -122,8 +127,8 @@
                 </v-form>
             </v-card>
             <router-view />
+            <alert-message :attributes="alert" />
         </v-dialog>
-        <alert-message :attributes="alert" />
     </v-row>
 </template>
 
@@ -192,6 +197,7 @@ export default {
                     value: 12
                 }
             ],
+            categorias: [],
             selectedMonth: null,
             date: false,
             categoriaDespesa: [],
@@ -202,16 +208,7 @@ export default {
                 metaGastos: null,
                 dataInicio: "",
                 dataFim: "",
-                categorias: [
-                    {
-                        planejamentoCategoriaPK: {
-                            categoriaDespesa: {
-                                id: null
-                            }
-                        },
-                        valorMaximoGasto: null
-                    }
-                ]
+                categorias: []
             }
         };
     },
@@ -220,6 +217,12 @@ export default {
             PlanejamentoService.findById(this.id)
                 .then(res => {
                     this.planejamento = res;
+                    this.selectedMonth = moment(
+                        this.planejamento.dataInicio
+                    ).format("YYYY-MM");
+                    this.categorias = this.generateCategoriesFromOld(
+                        this.planejamento.categorias
+                    );
                 })
                 .catch(e => {
                     this.alert = {
@@ -233,34 +236,17 @@ export default {
         this.findCategoriasDespesas();
     },
     methods: {
-        addCategory(id) {
-            if (this.id == null) {
-                if (id == null) {
-                    this.$router.push({ name: "PlanCategoriaDespesa" });
-                } else {
-                    this.$router.push({
-                        name: "PlanEditCategoriaDespesa",
-                        params: { idCat: id }
-                    });
-                }
-            } else {
-                if (id == null) {
-                    this.$router.push({ name: "EditingPlanCategoriaDespesa" });
-                } else {
-                    this.$router.push({
-                        name: "EditingPlanEditCategoriaDespesa",
-                        params: { idCat: id }
-                    });
-                }
-            }
-            if (id == null) {
-                this.$router.push({ name: "CategoriaDespesa" });
-            } else {
-                this.$router.push({
-                    name: "EditCategoriaDespesa",
-                    params: { idCat: id }
+        generateCategoriesFromOld(cats) {
+            let categories = [];
+            Array.from(cats).forEach(c => {
+                categories.push({
+                    id: c.planejamentoCategoriaPK.categoriaDespesa.id,
+                    nome: c.planejamentoCategoriaPK.categoriaDespesa.nome,
+                    cor: c.planejamentoCategoriaPK.categoriaDespesa.cor,
+                    valorMaximoGasto: c.valorMaximoGasto
                 });
-            }
+            });
+            return categories;
         },
         findCategoriasDespesas() {
             CategoriaDespesaService.findAll()
@@ -286,8 +272,106 @@ export default {
         formatMonth(month) {
             return month ? moment(month).format("MM/YYYY") : "";
         },
+        updateCategorias(categories) {
+            let categoriesToSave = [];
+            Array.from(categories).forEach(cat => {
+                categoriesToSave.push({
+                    planejamentoCategoriaPK: {
+                        categoriaDespesa: {
+                            id: cat.id
+                        }
+                    },
+                    valorMaximoGasto: Number(cat.valorMaximoGasto)
+                });
+            });
+            return categoriesToSave;
+        },
+        createCategorias(categories) {
+            let categoriesToSave = [];
+            Array.from(categories).forEach(cat => {
+                categoriesToSave.push({
+                    planejamentoCategoriaPK: {
+                        categoriaDespesa: {
+                            id: cat.id
+                        }
+                    },
+                    valorMaximoGasto: Number(cat.valorMaximoGasto)
+                });
+            });
+            return categoriesToSave;
+        },
         salvar() {
-            console.log(this.planejamento);
+            let planejamentoASalvar = {};
+            if (this.id != null) {
+                planejamentoASalvar = {
+                    id: this.planejamento.id,
+                    descricao: this.planejamento.descricao,
+                    alertaPorcentagem: this.planejamento.alertaPorcentagem,
+                    metaGastos: Number(this.planejamento.metaGastos),
+                    dataInicio: this.planejamento.dataInicio,
+                    dataFim: this.planejamento.dataFim,
+                    categorias: this.updateCategorias(this.categorias)
+                };
+                PlanejamentoService.update(planejamentoASalvar)
+                    .then(() => {
+                        this.alert = {
+                            open: true,
+                            color: "success",
+                            title: "Sucesso",
+                            text: "Planejamento salvo com sucesso"
+                        };
+                        this.close();
+                    })
+                    .catch(e => {
+                        this.alert = {
+                            open: true,
+                            color: "error",
+                            title: "Erro ao salvar planejamento",
+                            text: e.message
+                        };
+                    });
+            } else {
+                console.log(
+                    "firstDay",
+                    moment(this.selectedMonth)
+                        .startOf("month")
+                        .format("DD/MM/YYYY")
+                );
+                planejamentoASalvar = {
+                    id: null,
+                    descricao: this.planejamento.descricao,
+                    alertaPorcentagem: null,
+                    metaGastos: Number(this.planejamento.metaGastos),
+                    dataInicio: moment(this.selectedMonth)
+                        .startOf("month")
+                        .format("DD/MM/YYYY"),
+                    dataFim: moment(this.selectedMonth)
+                        .endOf("month")
+                        .format("DD/MM/YYYY"),
+                    categorias: this.createCategorias(this.categorias)
+                };
+                PlanejamentoService.save(planejamentoASalvar)
+                    .then(() => {
+                        this.alert = {
+                            open: true,
+                            color: "success",
+                            title: "Sucesso",
+                            text: "Planejamento salvo com sucesso"
+                        };
+                        this.close();
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        this.alert = {
+                            open: true,
+                            color: "error",
+                            title: "Erro ao salvar planejamento",
+                            text:
+                                e.message ||
+                                "Você já possui um planejamento no periodo selecionado"
+                        };
+                    });
+            }
         }
     }
 };
