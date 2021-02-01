@@ -12,7 +12,7 @@
             </template>
 
             <v-list nav>
-                <v-list-item class="text-right" tag="button">
+                <!-- <v-list-item class="text-right" tag="button">
                     <v-list-item-content>
                         <v-list-item-title>Perfil</v-list-item-title>
                     </v-list-item-content>
@@ -21,7 +21,7 @@
                     <v-list-item-content>
                         <v-list-item-title>Alterar a senha</v-list-item-title>
                     </v-list-item-content>
-                </v-list-item>
+                </v-list-item> -->
                 <v-list-item class="text-right" tag="button">
                     <v-list-item-content>
                         <v-list-item-title @click="logout"

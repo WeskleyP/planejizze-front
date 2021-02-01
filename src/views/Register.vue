@@ -128,6 +128,7 @@
                         </v-col>
                     </v-card>
                 </v-row>
+                <alert-message :attributes="alert" />
             </v-container>
             <router-view />
         </v-main>
@@ -139,6 +140,12 @@ import AuthenticationService from "../services/AuthenticationService";
 export default {
     data() {
         return {
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
             credenciais: {
                 username: "",
                 nome: "",
@@ -152,18 +159,22 @@ export default {
     methods: {
         register() {
             AuthenticationService.register(this.credenciais)
-                .then(response => {
-                    console.log(response);
-                    // this.$store.commit("LOGIN", response);
-                    // AuthenticationService.clarifyToken(response.token).then(
-                    //     response => {
-                    //         this.$store.commit("PERMS", response.body);
-                    //         this.$router.push({ name: "DashBoard" });
-                    //     }
-                    // );
+                .then(() => {
+                    this.alert = {
+                        open: true,
+                        color: "success",
+                        title: "Conta criada com sucesso",
+                        text:
+                            "Foi enviado um e-mail para a confirmação da sua conta"
+                    };
                 })
-                .catch(error => {
-                    console.error(error);
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar cria uma conta",
+                        text: e.message
+                    };
                 });
         },
         login() {

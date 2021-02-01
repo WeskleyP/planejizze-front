@@ -56,7 +56,7 @@
                                     hide-details
                                 ></v-text-field>
                                 <v-label>
-                                    Limite do Cartão
+                                    Limite do Cartão (R$)
                                 </v-label>
                                 <v-text-field
                                     outlined

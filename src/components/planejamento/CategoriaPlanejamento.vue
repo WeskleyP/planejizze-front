@@ -24,8 +24,8 @@
                                 </v-list-item-content>
                                 <v-list-item-content>
                                     <v-list-item-title class="text-left"
-                                        >Valor Máximo de
-                                        Gastos</v-list-item-title
+                                        >Valor Máximo de Gastos
+                                        (R$)</v-list-item-title
                                     >
                                 </v-list-item-content>
                             </v-list-item>

@@ -27,7 +27,7 @@
                                     outlined
                                     v-model="despesa.valor"
                                     class="mb-5"
-                                    label="Valor"
+                                    label="Valor (R$)"
                                     type="number"
                                     :disabled="
                                         despesa.id &&

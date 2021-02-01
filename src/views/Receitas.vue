@@ -173,8 +173,8 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <alert-message :attributes="alert" />
         <router-view />
+        <alert-message :attributes="alert" />
     </v-container>
 </template>
 <script>
@@ -302,7 +302,7 @@ export default {
                     value: "descricao"
                 },
                 { text: "Categoria", value: "categoriaReceita.nome" },
-                { text: "Valor", value: "valor" },
+                { text: "Valo (R$)r", value: "valor" },
                 {
                     text: "Recebimento",
                     value: "tipoRecebimento"
@@ -327,6 +327,7 @@ export default {
         this.fillCardData();
         this.filTable();
         this.fillBarChart();
+        this.fillPieChart();
         next();
     },
     methods: {

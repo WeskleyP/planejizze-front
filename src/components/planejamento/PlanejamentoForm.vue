@@ -53,7 +53,7 @@
                                         <v-text-field
                                             outlined
                                             v-model="c.valorMaximoGasto"
-                                            label="Valor máximo"
+                                            label="Valor máximo (R$)"
                                             class="text-right mw"
                                             single-line
                                             hide-details
@@ -361,7 +361,6 @@ export default {
                         this.close();
                     })
                     .catch(e => {
-                        console.error(e);
                         this.alert = {
                             open: true,
                             color: "error",

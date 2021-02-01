@@ -282,7 +282,7 @@ export default {
                     value: "descricao"
                 },
                 { text: "Categoria", value: "categoriaDespesa.nome" },
-                { text: "Valor", value: "valor" },
+                { text: "Valor (R$)", value: "valor" },
                 {
                     text: "Vencimento",
                     value: "tipoPagamento"
@@ -331,6 +331,7 @@ export default {
                         title: "Sucesso",
                         text: "Despesas excluida com sucesso"
                     };
+                    this.filTable();
                 })
                 .catch(e => {
                     this.alert = {
@@ -358,17 +359,38 @@ export default {
                 .then(res => {
                     this.cards.v1 = res.count;
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir",
+                        text: e.message
+                    };
+                });
             DespesaService.findDespesasNext30Days()
                 .then(res => {
                     this.cards.v2 = res.count;
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir",
+                        text: e.message
+                    };
+                });
             DespesaService.findNextDespesa()
                 .then(res => {
                     this.cards.v3 = res.count;
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir",
+                        text: e.message
+                    };
+                });
         },
         filTable() {
             DespesaService.findAll().then(resp => {
@@ -461,7 +483,14 @@ export default {
                         });
                     }
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir",
+                        text: e.message
+                    };
+                });
         },
         fillPieChart() {
             this.pieChart = {
@@ -497,7 +526,14 @@ export default {
                         });
                     }
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar excluir",
+                        text: e.message
+                    };
+                });
         }
     },
     watch: {

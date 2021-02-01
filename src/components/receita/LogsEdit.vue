@@ -31,7 +31,7 @@
                                 </v-list-item-content>
                                 <v-list-item-content>
                                     <v-list-item-title class="text-left"
-                                        >Valor Recebido</v-list-item-title
+                                        >Valor Recebido (R$)</v-list-item-title
                                     >
                                 </v-list-item-content>
                                 <v-list-item-content>

@@ -45,6 +45,12 @@ import AuthenticationService from "../../services/AuthenticationService";
 export default {
     data() {
         return {
+            alert: {
+                open: false,
+                color: "",
+                title: "",
+                text: ""
+            },
             open: true,
             email: "",
             loading: false,
@@ -59,11 +65,15 @@ export default {
                     this.successMessage =
                         "Foi enviado um email para recuperação de senha";
                 })
-                .catch(error => {
-                    console.error(error);
+                .catch(e => {
+                    this.alert = {
+                        open: true,
+                        color: "error",
+                        title: "Erro ao tentar cria uma conta",
+                        text: e.message
+                    };
                 })
                 .finally(() => {
-                    setTimeout(() => {}, 2000);
                     this.loading = false;
                     this.closeDialog;
                 });

@@ -27,7 +27,7 @@
                                     outlined
                                     v-model="receita.valor"
                                     class="mb-5"
-                                    label="Valor"
+                                    label="Valor (R$)"
                                     type="number"
                                     single-line
                                     hide-details
